@@ -14,7 +14,7 @@ public class MessagingNode implements Node{
     private Integer NODE_PORT;
 
     //ReceiverThread
-    TCPRecieverThread RecieverThread;
+    TCPReceiverThread ReceiverThread;
 
     private MessagingNode(String RHOST, int RPORT){
         //TODO IMPLEMENT REGISTRY AND UNCOMMENT THESE

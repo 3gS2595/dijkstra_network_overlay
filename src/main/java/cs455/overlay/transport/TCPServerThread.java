@@ -6,10 +6,10 @@ import java.io.*;
 import java.net.*;
 
 public class TCPServerThread implements Runnable{
-    protected Integer         OUR_PORT;
-    protected Node            Node;
-    protected Integer         NUM_POSSIBLE_CONNECTIONS = 11;
-    protected ServerSocket    ourServerSocket = null;
+    protected Integer       OUR_PORT;
+    protected Node          Node;
+    protected Integer       NUM_POSSIBLE_CONNECTIONS = 11;
+    protected ServerSocket  ourServerSocket = null;
 
     public void run(){
         try {
@@ -25,8 +25,8 @@ public class TCPServerThread implements Runnable{
             //If we get here we are no longer blocking, so we accepted a new connection
             System.out.println("We received a connection!");
             //create/initialize server thread
-            Thread RecieverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket));
-            RecieverThread.start();
+            Thread ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket));
+            ReceiverThread.start();
 
             //We have yet to block again, so we can handle this connection however we would like to.
             //For now, let's send a message and then wait for the response.
