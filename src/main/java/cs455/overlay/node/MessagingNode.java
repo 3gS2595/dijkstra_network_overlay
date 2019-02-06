@@ -13,7 +13,7 @@ public class MessagingNode implements Node{
     private String  NODE_HOST;
     private Integer NODE_PORT;
 
-    //RecieverThread
+    //ReceiverThread
     TCPRecieverThread RecieverThread;
 
     private MessagingNode(String RHOST, int RPORT){
@@ -28,12 +28,8 @@ public class MessagingNode implements Node{
             this.NODE_PORT = Node.acquirePORT();
 
             //create/initialize server thread
-            Thread newServerThread = new Thread(new TCPServerThread(NODE_PORT));
+            Thread newServerThread = new Thread(new TCPServerThread(NODE_PORT, this));
             newServerThread.start();
-
-            //create/initialize server thread
-            Thread RecieverThread = new Thread(new TCPRecieverThread(NODE_HOST, NODE_PORT));
-            RecieverThread.start();
 
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
