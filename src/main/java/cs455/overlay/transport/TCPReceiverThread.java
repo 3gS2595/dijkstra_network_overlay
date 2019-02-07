@@ -7,8 +7,8 @@ import java.io.*;
 import java.net.*;
 
 public class TCPReceiverThread implements Runnable{
-    protected Socket           socketToTheServer;
-    protected DataInputStream  din;
+    private Socket           socketToTheServer;
+    private DataInputStream  din;
 
     public void run() {
         int dataLength;

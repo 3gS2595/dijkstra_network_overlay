@@ -23,13 +23,7 @@ public class EventFactory implements Event{
                 new Register_Request(marshalledBytes);
                 break;
             case Protocol.REGISTER_RES:
-                new Register_Receive(marshalledBytes);
-                break;
-            case Protocol.DEREGISTER_REQ:
-                new Register_Request(marshalledBytes);
-                break;
-            case Protocol.DEREGISTER_RES:
-                new Register_Receive(marshalledBytes);
+                new Register_Response(marshalledBytes);
                 break;
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");

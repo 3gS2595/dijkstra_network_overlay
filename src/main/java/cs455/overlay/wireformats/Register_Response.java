@@ -1,17 +1,18 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
+import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPSender;
 
 import java.io.*;
-import java.net.*;
+import java.net.Socket;
 
-public class Register_Request implements Event {
+public class Register_Response {
+
     protected String NODE_ADDRESS;
     protected Integer NODE_PORT;
     protected boolean debug = true;
 
-    public Register_Request(byte[] marshalledBytes) throws IOException {
+    public Register_Response(byte[] marshalledBytes) throws IOException {
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshalledBytes);
         DataInputStream din =
@@ -30,30 +31,24 @@ public class Register_Request implements Event {
 
         if(debug) {
             System.out.println("RECEIVED");
-            System.out.println("Message Type (int)  : REGISTER_REQUEST");
-            System.out.println("IP address (String) : " + NODE_ADDRESS);
+            System.out.println("Message Type (int)  : REGISTER_RESPONSE");
+            System.out.println("Status Code (byte)  : " + NODE_ADDRESS);
             System.out.println("Port number (int)   : " + NODE_PORT);
             System.out.println();
         }
         baInputStream.close();
         din.close();
 
-        //TODO ENTER INTO NODE LIST
-        //TODO SEND RESPONSE
-        byte status = 1;
-        String info = "";
-        new Register_Response(NODE_ADDRESS, NODE_PORT, status, info);
     }
 
-    public Register_Request(Node Node){
+    public Register_Response(String NODE_ADDRESS, int NODE_PORT, byte STATUS, String INFO){
         try{
             //creates socket to server
-            Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
+            Socket REG_SOCKET = new Socket(NODE_ADDRESS, NODE_PORT);
             TCPSender sender = new TCPSender(REG_SOCKET);
 
             //creates Request message byte array
             byte[] marshalledBytes;
-            byte[] ADDRESS = (new String(Node.getAddr())).getBytes();
 
             //Initialize used streams
             ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
@@ -61,13 +56,14 @@ public class Register_Request implements Event {
                 new DataOutputStream(new BufferedOutputStream(baOutputStream));
 
             //insert the register request protocol
-            dout.writeByte(1);
+            dout.writeByte(2);
+            dout.writeByte(STATUS);
 
             //insert the Address then the port of the node
-            int elementLength = ADDRESS.length;
+            byte[] ADDITIONALINFO = (INFO).getBytes();
+            int elementLength = ADDITIONALINFO.length;
             dout.writeInt(elementLength);
-            dout.write(ADDRESS);
-            dout.writeInt(Node.getPort());
+            dout.write(ADDITIONALINFO);
 
             //records the byte array before final clean up
             dout.flush();
@@ -79,9 +75,19 @@ public class Register_Request implements Event {
 
             //sends request
             sender.sendData(marshalledBytes);
+
+            if(debug) {
+                System.out.println("SENT");
+                System.out.println("Message Type (int)       : REGISTER_RESPONSE");
+                System.out.println("Status Code (byte)       : " + STATUS);
+                System.out.println("Additional Info (String) : " + ADDITIONALINFO);
+                System.out.println();
+            }
+
         } catch (IOException e) {
             System.out.println("Register_request::sending request:: " + e);
             System.exit(1);
         }
     }
+
 }

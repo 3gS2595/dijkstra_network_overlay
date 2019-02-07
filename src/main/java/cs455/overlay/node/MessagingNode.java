@@ -65,5 +65,4 @@ public class MessagingNode implements Node{
     public int    getRegPort(){
         return this.REGISTRY_PORT;
     }
-
 }
