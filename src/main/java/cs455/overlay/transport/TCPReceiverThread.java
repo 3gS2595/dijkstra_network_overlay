@@ -1,20 +1,26 @@
 package cs455.overlay.transport;
 
 //This is the client program.
+import cs455.overlay.wireformats.EventFactory;
+
 import java.io.*;
 import java.net.*;
 
 public class TCPReceiverThread implements Runnable{
-    protected Socket           socketToTheServer = null;
-    protected DataInputStream  din = null;
+    protected Socket           socketToTheServer;
+    protected DataInputStream  din;
 
     public void run() {
         int dataLength;
         while (socketToTheServer != null) {
             try {
+                //receive and record message
                 dataLength = din.readInt();
                 byte[] data = new byte[dataLength];
                 din.readFully(data, 0, dataLength);
+
+                //send bytes for Unmarshalling and handling
+                new EventFactory(data);
             } catch (SocketException se) {
                 System.out.println(se.getMessage());
                 break;
@@ -23,6 +29,7 @@ public class TCPReceiverThread implements Runnable{
                 break;
             }
         }
+
     }
 
     public TCPReceiverThread(Socket socket) throws IOException {

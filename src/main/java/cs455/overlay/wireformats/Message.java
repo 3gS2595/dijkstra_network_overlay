@@ -13,7 +13,5 @@ public class Message {
         this.SOURCE_ADDRESS = sor_addr;
         this.SOURCE_PORT = sor_port;
         this.PAYLOAD = payload;
-
     }
-
 }

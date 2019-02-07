@@ -24,6 +24,7 @@ public class TCPServerThread implements Runnable{
             Socket incomingConnectionSocket = ourServerSocket.accept();
             //If we get here we are no longer blocking, so we accepted a new connection
             System.out.println("We received a connection!");
+
             //create/initialize server thread
             Thread ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket));
             ReceiverThread.start();

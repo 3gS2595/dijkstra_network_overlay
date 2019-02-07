@@ -1,7 +1,6 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.TCPServerThread;
-
 import java.io.DataInputStream;
 import java.net.InetAddress;
 import java.io.IOException;

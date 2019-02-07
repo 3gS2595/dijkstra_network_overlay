@@ -13,15 +13,12 @@ public class MessagingNode implements Node{
     private String  NODE_HOST;
     private Integer NODE_PORT;
 
-    //ReceiverThread
-    TCPReceiverThread ReceiverThread;
-
     private MessagingNode(String RHOST, int RPORT){
         //TODO IMPLEMENT REGISTRY AND UNCOMMENT THESE
         this.REGISTRY_HOST = RHOST;
         this.REGISTRY_PORT = RPORT;
 
-        //Initialize the TCPServerThread
+        //Initializes the TCPServerThread
         try {
             //acquire available tcp port
             this.NODE_HOST = InetAddress.getLocalHost().getHostName();
@@ -30,6 +27,8 @@ public class MessagingNode implements Node{
             //create/initialize server thread
             Thread newServerThread = new Thread(new TCPServerThread(NODE_PORT, this));
             newServerThread.start();
+
+            //TODO SEND REGISTER REQUEST
 
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
@@ -41,7 +40,7 @@ public class MessagingNode implements Node{
     //Second Arg =  registry's port number
     public static void main(String[] args){
         if(args.length != 2){
-            System.out.println("INCORRECT ARGUMENTS, HOST then PORT REQUIRED");
+            System.out.println("INCORRECT ARGUMENTS IN MESS NODE");
             return;
         }
         String args0 = args[0];
