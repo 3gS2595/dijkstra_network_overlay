@@ -1,7 +1,6 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.*;
-import cs455.overlay.wireformats.*;
 import java.io.*;
 import java.net.*;
 
@@ -9,14 +8,18 @@ public class MessagingNode implements Node{
     //Registry's network information
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
+
     //MessengerNode's network information
     private String  NODE_HOST;
     private Integer NODE_PORT;
 
-    private MessagingNode(String RHOST, int RPORT){
-        //TODO IMPLEMENT REGISTRY AND UNCOMMENT THESE
-        this.REGISTRY_HOST = RHOST;
-        this.REGISTRY_PORT = RPORT;
+    //TODO DISABLE DEBUG TOGGLE
+    private boolean debug = true;
+
+    //CONSTRUCTOR
+    private MessagingNode(String REGHOST, int REGPORT){
+        this.REGISTRY_HOST = REGHOST;
+        this.REGISTRY_PORT = REGPORT;
 
         //Initializes the TCPServerThread
         try {
@@ -28,7 +31,12 @@ public class MessagingNode implements Node{
             Thread newServerThread = new Thread(new TCPServerThread(NODE_PORT, this));
             newServerThread.start();
 
-            //TODO SEND REGISTER REQUEST
+            if(debug) {
+                System.out.println("INITIALIZED MESSAGING NODE");
+                System.out.println("NODE_HOST: " + NODE_HOST);
+                System.out.println("NODE_PORT: " + NODE_PORT);
+                System.out.println();
+            }
 
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
@@ -40,11 +48,22 @@ public class MessagingNode implements Node{
     //Second Arg =  registry's port number
     public static void main(String[] args){
         if(args.length != 2){
-            System.out.println("INCORRECT ARGUMENTS IN MESS NODE");
+            System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
             return;
         }
         String args0 = args[0];
         int args1 = Integer.parseInt(args[1]);
         MessagingNode node = new MessagingNode(args0, args1);
     }
+
+    //Used in constructing registry request atm in TCPServerThread
+    //Can be used to identify type of node (reg returns -1)
+    public String getAddr() { return this.NODE_HOST; }
+    public int    getPort() { return this.NODE_PORT; }
+
+    public String getRegAddr() { return this.REGISTRY_HOST; }
+    public int    getRegPort(){
+        return this.REGISTRY_PORT;
+    }
+
 }

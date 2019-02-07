@@ -1,12 +1,12 @@
 package cs455.overlay.wireformats;
 
-import java.io.*;
+import cs455.overlay.node.*;
+import cs455.overlay.transport.TCPSender;
 
-public class EventFactory {
-    private int type;
-    private long timestamp;
-    private String identifier;
-    private int PORT;
+import java.io.*;
+import java.net.*;
+
+public class EventFactory implements Event{
 
     //Unmarshalling (DECRYPT)
     public EventFactory(byte[] marshalledBytes) throws IOException {
@@ -14,68 +14,69 @@ public class EventFactory {
             new ByteArrayInputStream(marshalledBytes);
         DataInputStream din =
             new DataInputStream(new BufferedInputStream(baInputStream));
-
-        type = din.readInt();
-        timestamp = din.readLong();
-        int identifierLength = din.readInt();
-        byte[] identifierBytes = new byte[identifierLength];
-        din.readFully(identifierBytes);
+        int type = din.read();
+        baInputStream.close();
+        din.close();
 
         switch(type) {
             case Protocol.REGISTER_REQ:
-                new Register_Request(identifierBytes);
+                new Register_Request(marshalledBytes);
                 break;
             case Protocol.REGISTER_RES:
-                new Register_Receive(identifierBytes);
+                new Register_Receive(marshalledBytes);
                 break;
             case Protocol.DEREGISTER_REQ:
-                new Register_Request(identifierBytes);
+                new Register_Request(marshalledBytes);
                 break;
             case Protocol.DEREGISTER_RES:
-                new Register_Receive(identifierBytes);
+                new Register_Receive(marshalledBytes);
                 break;
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
                 break;
         }
-
-
-
-        identifier = new String(identifierBytes);
-
-        PORT = din.readInt();
-
-        baInputStream.close();
-        din.close();
     }
 
     //Marshalling (ENCRYPT)
-    public byte[] getBytes() throws IOException {
-        //initializes final return var
-        //initializes streams, in & out
-        byte[] marshalledBytes = null;
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout =
-            new DataOutputStream(new BufferedOutputStream(baOutputStream));
+    public EventFactory(Node Node, Integer protocol){
+        try{
+            //creates socket to server
+            Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
+            TCPSender sender = new TCPSender(REG_SOCKET);
+            byte[] payload;
 
-        dout.writeInt(type);
-        dout.writeLong(timestamp);
+            //Initialize used streams
+            ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
+            DataOutputStream dout =
+                new DataOutputStream(new BufferedOutputStream(baOutputStream));
 
-        //
-        byte[] identifierBytes = identifier.getBytes();
-        int elementLength = identifierBytes.length;
-        dout.writeInt(elementLength);
-        dout.write(identifierBytes);
+            switch(protocol){
+                case Protocol.REGISTER_REQ:
+                    //insert the register request protocol
+                    dout.writeInt(1);
+                    //insert the Address
+                    byte[] ADDRESS = (new String(Node.getAddr())).getBytes();
+                    int elementLength = ADDRESS.length;
+                    dout.writeInt(elementLength);
+                    dout.write(ADDRESS);
+                    //insert port
+                    dout.writeInt(Node.getPort());
+                    break;
+            }
 
-        dout.writeInt(PORT);
+            //records the byte array before final clean up
+            dout.flush();
+            payload = baOutputStream.toByteArray();
 
-        dout.flush();
-        marshalledBytes = baOutputStream.toByteArray();
+            //final clean up
+            baOutputStream.close();
+            dout.close();
 
-        baOutputStream.close();
-        dout.close();
-        return marshalledBytes;
+            //sends request
+            sender.sendData(payload);
+        } catch (IOException e) {
+            System.out.println("Register_request::sending request:: " + e);
+            System.exit(1);
+        }
     }
-
-
 }

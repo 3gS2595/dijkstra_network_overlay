@@ -28,7 +28,8 @@ public interface Node {
     }
     return PORT;
   }
-  //void main(String[] args);
-	//void get_server_address();
-	//void get_port_address();
-}	
+  String getRegAddr();
+  int getRegPort();
+  String getAddr();
+  int getPort();
+}

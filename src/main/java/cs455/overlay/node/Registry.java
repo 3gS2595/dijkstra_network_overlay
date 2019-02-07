@@ -1,33 +1,55 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.TCPServerThread;
-import java.io.DataInputStream;
-import java.net.InetAddress;
-import java.io.IOException;
+import java.io.*;
+import java.net.*;
 
 public class Registry implements Node{
     //Registry's network information'
-    static String SERVER_ADDRESS;
-    static int PORT;
+    private String   REGISTRY_HOST;
+    private Integer  REGISTRY_PORT;
 
-    //First Arg = TCP Port to use for registry
-    public static void main(String[] args) {
-        if (args.length > 0) {
-            PORT = Integer.parseInt(args[0]);
-        }
-        Registry node = new Registry(PORT);
-    }
-    private Registry(int port){
-        this.PORT = port;
+    //TODO DISABLE DEBUG TOGGLE
+    private boolean debug = true;
+
+    //CONSTRUCTOR
+    private Registry(int REGPORT){
+        this.REGISTRY_PORT = REGPORT;
+
         //Records the Server address of the used machine
         //Initializes a TCPServerThread
         try {
-            this.SERVER_ADDRESS = InetAddress.getLocalHost().getHostName();
-            Thread newServerThread = new Thread(new TCPServerThread(PORT, this));
+            this.REGISTRY_HOST = InetAddress.getLocalHost().getHostName();
+            if(debug) {
+                System.out.println("INITIALIZED REGISTRY NODE");
+                System.out.println("SERVER_ADDRESS: " + REGISTRY_HOST);
+                System.out.println("PORT          : " + REGISTRY_PORT);
+                System.out.println();
+            }
+
+            Thread newServerThread = new Thread(new TCPServerThread(REGISTRY_PORT, this));
             newServerThread.start();
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
         }
     }
+
+    //First Arg = TCP Port to use for registry
+    public static void main(String[] args) {
+        if(args.length != 1){
+            System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
+            return;
+        }
+        Registry node = new Registry(Integer.parseInt(args[0]));
+    }
+
+    //SHOULD NEVER GET CALLED ON A REGISTRY NODE
+    public String getAddr(){
+        return "-1";
+    }
+    public int    getPort() { return  -1;  }
+
+    public String getRegAddr() { return "-1"; }
+    public int    getRegPort() { return  -1;  }
 }
