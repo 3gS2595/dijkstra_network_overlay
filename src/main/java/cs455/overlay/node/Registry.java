@@ -1,13 +1,17 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.wireformats.MessagingNodesList;
+
 import java.io.*;
 import java.net.*;
 
 public class Registry implements Node{
+    //Actual "registry" (hashed)
+    public MessagingNodesList NODE_LIST = new MessagingNodesList();
     //Registry's network information'
-    private String   REGISTRY_HOST;
-    private Integer  REGISTRY_PORT;
+    private String             REGISTRY_HOST;
+    private Integer            REGISTRY_PORT;
 
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;

@@ -2,7 +2,7 @@ package cs455.overlay.wireformats;
 
 import cs455.overlay.node.*;
 import cs455.overlay.transport.TCPSender;
-
+import cs455.overlay.node.*;
 import java.io.*;
 import java.net.*;
 
@@ -10,8 +10,11 @@ public class Register_Request implements Event {
     protected String NODE_ADDRESS;
     protected Integer NODE_PORT;
     protected boolean debug = true;
+    private Node Node;
 
-    public Register_Request(byte[] marshalledBytes) throws IOException {
+    public Register_Request(byte[] marshalledBytes, Node Node) throws IOException {
+        this.Node = Node;
+
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshalledBytes);
         DataInputStream din =
@@ -40,8 +43,11 @@ public class Register_Request implements Event {
 
         //TODO ENTER INTO NODE LIST
         //TODO SEND RESPONSE
-        byte status = 1;
-        String info = "";
+        Registry reg = (Registry)Node;
+        String add = reg.NODE_LIST.ADD_NODE(NODE_ADDRESS, NODE_PORT);
+
+        byte status = Byte.parseByte(add.substring(0,1));
+        String info = add.substring(1);
         new Register_Response(NODE_ADDRESS, NODE_PORT, status, info);
     }
 
@@ -53,7 +59,6 @@ public class Register_Request implements Event {
 
             //creates Request message byte array
             byte[] marshalledBytes;
-            byte[] ADDRESS = (new String(Node.getAddr())).getBytes();
 
             //Initialize used streams
             ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
@@ -64,6 +69,7 @@ public class Register_Request implements Event {
             dout.writeByte(1);
 
             //insert the Address then the port of the node
+            byte[] ADDRESS = (new String(Node.getAddr())).getBytes();
             int elementLength = ADDRESS.length;
             dout.writeInt(elementLength);
             dout.write(ADDRESS);
@@ -79,6 +85,14 @@ public class Register_Request implements Event {
 
             //sends request
             sender.sendData(marshalledBytes);
+
+            if(debug) {
+                System.out.println("SENT");
+                System.out.println("Message Type (int)  : REGISTER_REQUEST");
+                System.out.println("IP address (String) : " + Node.getAddr());
+                System.out.println("Port number (int)   : " + Node.getPort());
+                System.out.println();
+            }
         } catch (IOException e) {
             System.out.println("Register_request::sending request:: " + e);
             System.exit(1);

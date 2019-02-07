@@ -8,9 +8,9 @@ import java.net.Socket;
 
 public class Register_Response {
 
-    protected String NODE_ADDRESS;
-    protected Integer NODE_PORT;
-    protected boolean debug = true;
+    private String ADDITIONALINFO;
+    private byte STATUS;
+    private boolean debug = true;
 
     public Register_Response(byte[] marshalledBytes) throws IOException {
         ByteArrayInputStream baInputStream =
@@ -21,19 +21,21 @@ public class Register_Response {
         //Throws away type data;
         din.readByte();
 
+        STATUS = din.readByte();
+
         //Stores NODE's ADDRESS
         int identifierLength = din.readInt();
         byte[] identifierBytes = new byte[identifierLength];
         din.readFully(identifierBytes);
-        NODE_ADDRESS = new String(identifierBytes);
+        ADDITIONALINFO = new String(identifierBytes);
         //Stores NODE's PORT
-        NODE_PORT = din.readInt();
+
 
         if(debug) {
             System.out.println("RECEIVED");
-            System.out.println("Message Type (int)  : REGISTER_RESPONSE");
-            System.out.println("Status Code (byte)  : " + NODE_ADDRESS);
-            System.out.println("Port number (int)   : " + NODE_PORT);
+            System.out.println("Message Type (int)       : REGISTER_RESPONSE");
+            System.out.println("Status Code (byte)       : " + STATUS);
+            System.out.println("Additional Info (String) : " + ADDITIONALINFO);
             System.out.println();
         }
         baInputStream.close();
@@ -80,7 +82,7 @@ public class Register_Response {
                 System.out.println("SENT");
                 System.out.println("Message Type (int)       : REGISTER_RESPONSE");
                 System.out.println("Status Code (byte)       : " + STATUS);
-                System.out.println("Additional Info (String) : " + ADDITIONALINFO);
+                System.out.println("Additional Info (String) : " + INFO);
                 System.out.println();
             }
 

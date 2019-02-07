@@ -2,14 +2,13 @@ package cs455.overlay.wireformats;
 
 import cs455.overlay.node.*;
 import cs455.overlay.transport.TCPSender;
-
 import java.io.*;
 import java.net.*;
 
 public class EventFactory implements Event{
 
     //Unmarshalling (DECRYPT)
-    public EventFactory(byte[] marshalledBytes) throws IOException {
+    public EventFactory(byte[] marshalledBytes, Node Node) throws IOException {
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshalledBytes);
         DataInputStream din =
@@ -20,7 +19,7 @@ public class EventFactory implements Event{
 
         switch(type) {
             case Protocol.REGISTER_REQ:
-                new Register_Request(marshalledBytes);
+                new Register_Request(marshalledBytes, Node);
                 break;
             case Protocol.REGISTER_RES:
                 new Register_Response(marshalledBytes);
