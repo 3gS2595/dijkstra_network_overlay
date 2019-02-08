@@ -25,10 +25,10 @@ public class TCPReceiverThread implements Runnable{
                 Registry.Factory.newEvent(data);
 
             } catch (SocketException se) {
-                System.out.println(se.getMessage());
+                System.out.println("SocketException se: a connection dropped?");
                 break;
             } catch (IOException ioe) {
-                System.out.println(ioe.getMessage()) ;
+                System.out.println("IOException ioe: a connetcion dropped?");
                 break;
             }
         }

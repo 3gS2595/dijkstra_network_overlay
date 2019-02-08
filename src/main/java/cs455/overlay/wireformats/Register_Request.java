@@ -108,6 +108,7 @@ public class Register_Request implements Event {
         }
     }
 
+    //GETTERS
     public int getType(){ return 1; }
     public byte[] getBytes(){ return this.marshaledBytes; }
 }
