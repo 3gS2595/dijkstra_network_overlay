@@ -5,12 +5,22 @@ import cs455.overlay.transport.TCPSender;
 import java.io.*;
 import java.net.*;
 
-public class EventFactory implements Event{
+public class EventFactory{
+
+    Integer REGISTRY_PORT;
+    String REGISTRY_HOST;
+
+    public EventFactory(){
+        this.REGISTRY_HOST = REGISTRY_HOST;
+        this.REGISTRY_PORT = REGISTRY_PORT;
+    }
 
     //Unmarshalling (DECRYPT)
-    public EventFactory(byte[] marshalledBytes, Node Node) throws IOException {
+    public EventFactory(byte[] marshaledBytes) throws IOException {
+
+        //Reads first int of input for message type
         ByteArrayInputStream baInputStream =
-            new ByteArrayInputStream(marshalledBytes);
+            new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
             new DataInputStream(new BufferedInputStream(baInputStream));
         int type = din.read();
@@ -19,15 +29,27 @@ public class EventFactory implements Event{
 
         switch(type) {
             case Protocol.REGISTER_REQ:
-                new Register_Request(marshalledBytes, Node);
+                new Register_Request(marshaledBytes);
                 break;
             case Protocol.REGISTER_RES:
-                new Register_Response(marshalledBytes, Node);
+                new Register_Response(marshaledBytes);
+                break;
+            case Protocol.DEREGISTER_REQ:
+                new Deregister_Request(marshaledBytes);
+                break;
+            case Protocol.DEREGISTER_RES:
+                new Deregister_Response(marshaledBytes);
                 break;
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
                 break;
         }
+    }
+
+    public void set(String REG_HOST, Integer REG_PORT){
+        this.REGISTRY_PORT = REG_PORT;
+        this.REGISTRY_HOST = REG_HOST;
+
     }
 
     //Marshalling (ENCRYPT)

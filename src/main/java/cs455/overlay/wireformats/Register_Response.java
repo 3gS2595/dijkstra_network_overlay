@@ -6,11 +6,11 @@ import java.io.*;
 import java.net.Socket;
 
 public class Register_Response {
-    private boolean debug;
+    boolean debug = true;
+
 
     //RECEIVES RESPONSE
-    public Register_Response(byte[] marshaledBytes, Node Node) throws IOException {
-        debug = Node.getDebug();
+    public Register_Response(byte[] marshaledBytes) throws IOException {
 
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
@@ -42,15 +42,13 @@ public class Register_Response {
     }
 
     //SENDS RESPONSE
-    public Register_Response(Node Node, byte STATUS, String INFO)  throws IOException {
-        debug = Node.getDebug();
+    public Register_Response(String NODE_ADDRESS, int NODE_PORT, byte STATUS, String INFO)  throws IOException {
 
         //creates Request message byte array
-        byte[] marshalledBytes;
+        byte[] marshaledBytes;
 
         //creates socket to server
-        Socket REG_SOCKET = new Socket(Node.getAddr(), Node.getPort());
-        TCPSender sender = new TCPSender(REG_SOCKET);
+        Socket REG_SOCKET = new Socket(NODE_ADDRESS, NODE_PORT);
 
         //Initialize used streams
         ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
@@ -69,12 +67,13 @@ public class Register_Response {
 
         //records payload and cleans up
         dout.flush();
-        marshalledBytes = baOutputStream.toByteArray();
+        marshaledBytes = baOutputStream.toByteArray();
         baOutputStream.close();
         dout.close();
 
         //sends request
-        sender.sendData(marshalledBytes);
+        TCPSender sender = new TCPSender(REG_SOCKET);
+        sender.sendData(marshaledBytes);
 
         if(debug) {
             System.out.println("REGISTER_RESPONSE (SENT)");

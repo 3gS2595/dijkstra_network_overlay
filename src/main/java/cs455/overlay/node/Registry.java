@@ -1,30 +1,35 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
 
 import java.io.*;
 import java.net.*;
-
 public class Registry implements Node{
+
+    //TODO DISABLE DEBUG TOGGLE
+    private boolean debug = true;
+
+    //The only EventFactory Instance
+    public final EventFactory Factory = new EventFactory();
+
     //Actual "registry" (hashed)
-    public MessagingNodesList NODE_LIST = new MessagingNodesList();
+    public final static MessagingNodesList NODE_LIST = new MessagingNodesList();
 
     //Registry's network information'
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
 
-    //TODO DISABLE DEBUG TOGGLE
-    private boolean debug = true;
-
     //CONSTRUCTOR
-    private Registry(int REGPORT){
-        this.REGISTRY_PORT = REGPORT;
+    private Registry(int ARG_REGISTER_PORT){
+        this.REGISTRY_PORT = ARG_REGISTER_PORT;
 
         //Records the Server address of the used machine
         //Initializes a TCPServerThread
         try {
             this.REGISTRY_HOST = InetAddress.getLocalHost().getHostName();
+            Factory.set(this.REGISTRY_HOST, this.REGISTRY_PORT);
             if(debug) {
                 System.out.println("INITIALIZED REGISTRY NODE");
                 System.out.println("SERVER_ADDRESS: " + REGISTRY_HOST);
@@ -46,11 +51,9 @@ public class Registry implements Node{
             System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
             return;
         }
-        Registry node = new Registry(Integer.parseInt(args[0]));
+        new Registry(Integer.parseInt(args[0]));
     }
 
-    //Used to declare DEBUG mode on all Registry nodes
-    public boolean getDebug() { return this.debug; }
 
     public String getAddr(){
         return REGISTRY_HOST;

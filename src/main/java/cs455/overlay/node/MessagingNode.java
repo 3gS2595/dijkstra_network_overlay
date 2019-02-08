@@ -5,6 +5,10 @@ import java.io.*;
 import java.net.*;
 
 public class MessagingNode implements Node{
+
+    //TODO DISABLE DEBUG TOGGLE
+    private boolean debug = true;
+
     //Registry's network information
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
@@ -12,10 +16,7 @@ public class MessagingNode implements Node{
     //MessengerNode's network information
     private String  NODE_HOST;
     private Integer NODE_PORT;
-
-    //TODO DISABLE DEBUG TOGGLE
-    private boolean debug = true;
-
+    
     //CONSTRUCTOR
     private MessagingNode(String REGHOST, int REGPORT){
         this.REGISTRY_HOST = REGHOST;

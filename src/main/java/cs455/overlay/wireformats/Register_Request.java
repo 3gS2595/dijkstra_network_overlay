@@ -6,16 +6,19 @@ import java.io.*;
 import java.net.*;
 
 public class Register_Request implements Event {
-    protected String NODE_ADDRESS;
-    protected Integer NODE_PORT;
-    protected boolean debug;
+    boolean debug = true;
+    private byte[] marshaledBytes;
 
     //RECEIVES REQUEST
-    public Register_Request(byte[] marshalledBytes, Node Node) throws IOException {
-        debug = Node.getDebug();
+    public Register_Request(byte[] marshaledBytes) throws IOException {
+        this.marshaledBytes = marshaledBytes;
+
+        //Incoming network info
+        String NODE_ADDRESS;
+        Integer NODE_PORT;
 
         ByteArrayInputStream baInputStream =
-            new ByteArrayInputStream(marshalledBytes);
+            new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
             new DataInputStream(new BufferedInputStream(baInputStream));
 
@@ -42,18 +45,18 @@ public class Register_Request implements Event {
             System.out.println();
         }
 
-        //SENDS REGISTER_RESPONSE
-        Registry reg = (Registry)Node;
-        String add = reg.NODE_LIST.ADD_NODE(NODE_ADDRESS, NODE_PORT);
+        //REGISTERS THE NODE
+        String add = Registry.NODE_LIST.ADD_NODE(NODE_ADDRESS, NODE_PORT);
 
+        //SENDS REGISTER_RESPONSE
         byte status = Byte.parseByte(add.substring(0,1));
         String info = add.substring(1);
-        new Register_Response(Node, status, info);
+        new Register_Response(NODE_ADDRESS, NODE_PORT, status, info);
     }
 
     //SENDS REQUEST
     public Register_Request(Node Node) throws IOException {
-        debug = Node.getDebug();
+        boolean debug = Node.getDebug();
 
         //creates socket to server
         Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
@@ -92,5 +95,12 @@ public class Register_Request implements Event {
             System.out.print("(Port number: " + Node.getPort() + ")");
             System.out.println();
         }
+    }
+
+    public int getType(){
+        return 1;
+    }
+    public byte[] getBytes(){
+        return this.marshaledBytes;
     }
 }

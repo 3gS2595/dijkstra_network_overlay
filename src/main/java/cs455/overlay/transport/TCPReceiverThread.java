@@ -12,7 +12,7 @@ public class TCPReceiverThread implements Runnable{
     private Socket           socketToTheServer;
     private DataInputStream  din;
 
-    public void run() {
+    public void run(){
         int dataLength;
         while (socketToTheServer != null) {
             try {
@@ -24,7 +24,7 @@ public class TCPReceiverThread implements Runnable{
 
                 //send bytes for Unmarshalling and handling
                 //The current node sent for debug/data access
-                new EventFactory(data, Node);
+                new EventFactory(data);
 
             } catch (SocketException se) {
                 System.out.println(se.getMessage());
