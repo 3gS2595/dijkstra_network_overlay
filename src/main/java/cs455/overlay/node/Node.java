@@ -28,6 +28,7 @@ public interface Node {
     }
     return PORT;
   }
+  boolean getDebug();
   String getRegAddr();
   int getRegPort();
   String getAddr();

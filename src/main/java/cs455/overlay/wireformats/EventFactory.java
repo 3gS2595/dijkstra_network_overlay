@@ -22,7 +22,7 @@ public class EventFactory implements Event{
                 new Register_Request(marshalledBytes, Node);
                 break;
             case Protocol.REGISTER_RES:
-                new Register_Response(marshalledBytes);
+                new Register_Response(marshalledBytes, Node);
                 break;
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");

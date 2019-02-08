@@ -16,13 +16,16 @@ public class TCPReceiverThread implements Runnable{
         int dataLength;
         while (socketToTheServer != null) {
             try {
+
                 //receive and record message
                 dataLength = din.readInt();
                 byte[] data = new byte[dataLength];
                 din.readFully(data, 0, dataLength);
 
                 //send bytes for Unmarshalling and handling
+                //The current node sent for debug/data access
                 new EventFactory(data, Node);
+
             } catch (SocketException se) {
                 System.out.println(se.getMessage());
                 break;

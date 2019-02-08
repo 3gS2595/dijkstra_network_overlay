@@ -1,5 +1,4 @@
 package cs455.overlay.wireformats;
 
-public class Deregister {
-
+public class Deregister_Response {
 }

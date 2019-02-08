@@ -44,17 +44,19 @@ public class MessagingNode implements Node{
         }
     }
 
-    //First Arg = registry's Host address
-    //Second Arg =  registry's port number
+    //First Arg  = registry's Host address
+    //Second Arg = registry's port number
     public static void main(String[] args){
         if(args.length != 2){
             System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
             return;
         }
-        String args0 = args[0];
-        int args1 = Integer.parseInt(args[1]);
-        MessagingNode node = new MessagingNode(args0, args1);
+        //Reroutes arguments to MessagingNode's Constructor
+        new MessagingNode(args[0], Integer.parseInt(args[1]));
     }
+
+    //Used to declare DEBUG mode on all messenger nodes
+    public boolean getDebug() { return this.debug; }
 
     //Used in constructing registry request atm in TCPServerThread
     //Can be used to identify type of node (reg returns -1)

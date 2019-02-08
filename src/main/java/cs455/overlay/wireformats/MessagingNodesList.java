@@ -16,9 +16,9 @@ public class MessagingNodesList {
         String HASHKEY = ADDRESS + PORT;
         if(!NODE_REGISTRY_HASH.containsKey(HASHKEY)){
             NODE_REGISTRY_HASH.put(HASHKEY, new pair(PORT, ADDRESS));
-            return "1NEW NODE ENTERED INTO MESSENGER NODE LIST";
+            return "1NODE REGISTERED";
         }
-        return "0NODE ALREADY REGISTERED NO ACTION TAKEN";
+        return "0NODE ALREADY REGISTERED";
     }
 }
 

@@ -23,16 +23,19 @@ public class TCPServerThread implements Runnable{
                 new Register_Request(Node);
             }
 
+            //Loop should continue indefinitely
             Socket incomingConnectionSocket = null;
             while(!Thread.currentThread().isInterrupted()) {
                 //Block on accepting connections. Once it has received a connection it will return a socket for us to use.
                 incomingConnectionSocket = ourServerSocket.accept();
+
                 //If we get here we are no longer blocking, so we accepted a new connection
                 //create/initialize server thread
                 Thread ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket, Node));
                 ReceiverThread.start();
             }
 
+            //clean up
             incomingConnectionSocket.close();
             ourServerSocket.close();
 
@@ -42,8 +45,9 @@ public class TCPServerThread implements Runnable{
         }
     }
 
+    //CONSTRUCTOR
     public TCPServerThread(int port, Node node){
         this.Node = node;
-        OUR_PORT = port;
+        this.OUR_PORT = port;
     }
 }

@@ -9,9 +9,10 @@ import java.net.*;
 public class Registry implements Node{
     //Actual "registry" (hashed)
     public MessagingNodesList NODE_LIST = new MessagingNodesList();
+
     //Registry's network information'
-    private String             REGISTRY_HOST;
-    private Integer            REGISTRY_PORT;
+    private String  REGISTRY_HOST;
+    private Integer REGISTRY_PORT;
 
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
@@ -48,12 +49,15 @@ public class Registry implements Node{
         Registry node = new Registry(Integer.parseInt(args[0]));
     }
 
-    //SHOULD NEVER GET CALLED ON A REGISTRY NODE
-    public String getAddr(){
-        return "-1";
-    }
-    public int    getPort() { return  -1;  }
+    //Used to declare DEBUG mode on all Registry nodes
+    public boolean getDebug() { return this.debug; }
 
+    public String getAddr(){
+        return REGISTRY_HOST;
+    }
+    public int    getPort() { return  REGISTRY_PORT;  }
+
+    //SHOULD NEVER GET CALLED ON A REGISTRY NODE
     public String getRegAddr() { return "-1"; }
     public int    getRegPort() { return  -1;  }
 }
