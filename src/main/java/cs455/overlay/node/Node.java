@@ -29,9 +29,12 @@ public interface Node {
         return PORT;
     }
 
+    //getters
     String getRegAddr();
     int getRegPort();
-
     String getAddr();
     int getPort();
+
+    //Identification
+    boolean isMessenger();
 }

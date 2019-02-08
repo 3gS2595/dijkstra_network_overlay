@@ -6,15 +6,15 @@ public class MessagingNodesList {
     //Hash map that houses all the node information
     //Each entry will include SERVER_ADDRESS and PORT
     //Key is the node's SERVER_ADDRESS
-    private HashMap<String, Pair> NODE_REGISTRY_HASH = new HashMap<String, Pair>();
+    private HashMap<String, Pair> NODE_REGISTRY_HASHMAP = new HashMap<String, Pair>();
 
     //CONSTRUCTOR
     public MessagingNodesList(){}
 
     String ADD_NODE(String ADDRESS, int PORT){
         String HASHKEY = ADDRESS + PORT;
-        if(!NODE_REGISTRY_HASH.containsKey(HASHKEY)){
-            NODE_REGISTRY_HASH.put(HASHKEY, new Pair(PORT, ADDRESS));
+        if(!NODE_REGISTRY_HASHMAP.containsKey(HASHKEY)){
+            NODE_REGISTRY_HASHMAP.put(HASHKEY, new Pair(PORT, ADDRESS));
             return "1NODE REGISTERED";
         }
         return "0NODE ALREADY REGISTERED";
@@ -22,8 +22,8 @@ public class MessagingNodesList {
 
     String REM_NODE(String ADDRESS, int PORT){
         String HASHKEY = ADDRESS + PORT;
-        if(NODE_REGISTRY_HASH.containsKey(HASHKEY)){
-            NODE_REGISTRY_HASH.remove(HASHKEY);
+        if(NODE_REGISTRY_HASHMAP.containsKey(HASHKEY)){
+            NODE_REGISTRY_HASHMAP.remove(HASHKEY);
             return "1NODE DEREGISTERED";
         }
         return "0NODE NOT REGISTERED";

@@ -14,7 +14,7 @@ public class Registry implements Node{
     private boolean debug = true;
 
     //The only EventFactory Instance
-    public final EventFactory Factory = new EventFactory();
+    public final static EventFactory Factory = new EventFactory();
 
     //Actual "registry" (hashed)
     public final static MessagingNodesList NODE_LIST = new MessagingNodesList();
@@ -25,22 +25,27 @@ public class Registry implements Node{
 
     //CONSTRUCTOR
     private Registry(int ARG_REGISTER_PORT) {
-        this.REGISTRY_PORT = ARG_REGISTER_PORT;
 
-        //Records the Server address of the used machine
-        //Initializes a TCPServerThread
+        //Records the given temrinal argument
+        this.REGISTRY_PORT = ARG_REGISTER_PORT;
         try {
+            //Attains the Server address of the used machine
             this.REGISTRY_HOST = InetAddress.getLocalHost().getHostName();
-            Factory.set(this.REGISTRY_HOST, this.REGISTRY_PORT);
+
+            //Enters the registry info for entire JVM to access
+            this.Factory.set(this.REGISTRY_HOST, this.REGISTRY_PORT);
+
+            //DEBUG
             if (debug) {
-                System.out.println("INITIALIZED REGISTRY NODE");
-                System.out.println("SERVER_ADDRESS: " + REGISTRY_HOST);
-                System.out.println("PORT          : " + REGISTRY_PORT);
-                System.out.println();
+                System.out.println("INITIALIZED REGISTRY NODE\n" +
+                    "REGISTRY_HOST: " + REGISTRY_HOST + "\n" +
+                    "REGISTRY_PORT: " + REGISTRY_PORT + "\n");
             }
 
-            Thread newServerThread = new Thread(new TCPServerThread(REGISTRY_PORT, this));
+            //Initializes a TCPServerThread
+            Thread newServerThread = new Thread(new TCPServerThread(this.REGISTRY_PORT, this));
             newServerThread.start();
+
         } catch (IOException e) {
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
@@ -48,9 +53,8 @@ public class Registry implements Node{
 
         //USER COMMAND INPUT
         while(true){
-            String in;
             Scanner scanner = new Scanner(System.in);
-            in = scanner.nextLine();
+            String in = scanner.nextLine();
             switch (in) {
                 case "list-messaging-nodes":
                     System.out.println("tat");
@@ -72,21 +76,21 @@ public class Registry implements Node{
         }
     }
 
-    //First Arg = TCP Port to use for registry
-    public static void main(String[] args) {
-        if(args.length != 1){
-            System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
-            return;
-        }
-        new Registry(Integer.parseInt(args[0]));
-    }
-
+    //Identification
+    public boolean isMessenger(){ return false; }
 
     //GETTERS
-    public String getAddr(){ return REGISTRY_HOST; }
-    public int    getPort() { return  REGISTRY_PORT;  }
+    public String getAddr() { return REGISTRY_HOST; }
+    public int    getPort() { return REGISTRY_PORT; }
 
-    //SHOULD NOT BE CALLED ON REGISTRY NODE EVER
+    //NORMALLY NEVER CALLED ON REGISTRY NODE
     public String getRegAddr() { return "-1"; }
     public int    getRegPort() { return  -1;  }
+
+    //First Arg = TCP Port to use for registry
+    public static void main(String[] args) {
+        if(args.length != 1)
+            System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
+        else new Registry(Integer.parseInt(args[0]));
+    }
 }

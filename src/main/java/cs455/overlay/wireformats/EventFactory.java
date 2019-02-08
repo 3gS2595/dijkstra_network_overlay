@@ -18,7 +18,7 @@ public class EventFactory{
     public EventFactory(){}
 
     //Unmarshalling (DECRYPT)
-    public EventFactory(byte[] marshaledBytes) throws IOException {
+    public void newEvent(byte[] marshaledBytes) throws IOException {
 
         //Retreives message "type" from marsheledBytes
         ByteArrayInputStream baInputStream =

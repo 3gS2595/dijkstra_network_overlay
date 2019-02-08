@@ -1,6 +1,7 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.*;
+
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -33,18 +34,16 @@ public class MessagingNode implements Node{
             Thread newServerThread = new Thread(new TCPServerThread(NODE_PORT, this));
             newServerThread.start();
 
-            if(debug) {
-                System.out.println("INITIALIZED MESSAGING NODE");
-                System.out.println("NODE_HOST: " + NODE_HOST);
-                System.out.println("NODE_PORT: " + NODE_PORT);
-                System.out.println();
+            if (debug) {
+                System.out.println("INITIALIZED MESSENGER NODE\n" +
+                    "NODE_HOST: " + NODE_HOST + "\n" +
+                    "NODE_PORT: " + NODE_PORT + "\n");
             }
 
             //USER COMMAND INPUT
             while(true){
-                String in;
                 Scanner scanner = new Scanner(System.in);
-                in = scanner.nextLine();
+                String in = scanner.nextLine();
                 switch (in) {
                     case "print-shortest-path":
                         System.out.println("tat");
@@ -65,21 +64,21 @@ public class MessagingNode implements Node{
         }
     }
 
-    //First Arg  = registry's Host address
-    //Second Arg = registry's port number
-    public static void main(String[] args){
-        if(args.length != 2){
-            System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
-            return;
-        }
-        //Reroutes arguments to MessagingNode's Constructor
-        new MessagingNode(args[0], Integer.parseInt(args[1]));
-    }
+    //Identification
+    public boolean isMessenger(){ return true; }
 
-
-    //getters
+    //GETTERS
     public String getAddr() { return this.NODE_HOST; }
     public int    getPort() { return this.NODE_PORT; }
     public String getRegAddr() { return this.REGISTRY_HOST; }
     public int    getRegPort() { return this.REGISTRY_PORT; }
+
+    //First Arg  = registry's Host address
+    //Second Arg = registry's port number
+    //Reroutes arguments to MessagingNode's Constructor
+    public static void main(String[] args){
+        if(args.length != 2)
+            System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
+        else new MessagingNode(args[0], Integer.parseInt(args[1]));
+    }
 }
