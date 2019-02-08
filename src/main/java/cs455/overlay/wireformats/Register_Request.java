@@ -20,12 +20,12 @@ public class Register_Request implements Event {
     private byte[] marshaledBytes;
 
     //RECEIVES REQUEST
-    public Register_Request(byte[] marshaledBytes) throws IOException {
+    Register_Request(byte[] marshaledBytes) throws IOException {
         this.marshaledBytes = marshaledBytes;
 
         //Incoming network info
         String NODE_ADDRESS;
-        Integer NODE_PORT;
+        int NODE_PORT;
 
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
@@ -82,11 +82,13 @@ public class Register_Request implements Event {
         //insert the register request protocol
         dout.writeByte(1);
 
-        //insert the Address then the port of the node
-        byte[] ADDRESS = (new String(Node.getAddr())).getBytes();
+        //insert the Address
+        byte[] ADDRESS = (Node.getAddr()).getBytes();
         int elementLength = ADDRESS.length;
         dout.writeInt(elementLength);
         dout.write(ADDRESS);
+
+        //Inserts the Port
         dout.writeInt(Node.getPort());
 
         //records payload and cleans up
@@ -95,7 +97,7 @@ public class Register_Request implements Event {
         baOutputStream.close();
         dout.close();
 
-        //sends request
+        //sends the request
         sender.sendData(marshalledBytes);
 
         if(debug) {

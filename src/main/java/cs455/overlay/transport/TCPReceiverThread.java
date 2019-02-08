@@ -38,6 +38,4 @@ public class TCPReceiverThread implements Runnable{
         this.socketToTheServer = socket;
         this.din = new DataInputStream(socket.getInputStream());
     }
-
-
 }

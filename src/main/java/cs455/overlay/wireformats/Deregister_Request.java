@@ -14,14 +14,18 @@ import java.io.BufferedOutputStream;
 import java.net.Socket;
 
 public class Deregister_Request implements Event {
-    private String  NODE_ADDRESS;
-    private Integer NODE_PORT;
-    private byte[]  marshaledBytes;
+
+    //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
+    private byte[]  marshaledBytes;
 
     //RECEIVES REQUEST
-    public Deregister_Request(byte[] marshaledBytes) throws IOException {
+    Deregister_Request(byte[] marshaledBytes) throws IOException {
         this.marshaledBytes = marshaledBytes;
+
+        //Incoming network info
+        String NODE_ADDRESS;
+        int NODE_PORT;
 
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
@@ -78,7 +82,7 @@ public class Deregister_Request implements Event {
         dout.writeByte(1);
 
         //insert the Address then the port of the node
-        byte[] ADDRESS = (new String(Node.getAddr())).getBytes();
+        byte[] ADDRESS = (Node.getAddr()).getBytes();
         int elementLength = ADDRESS.length;
         dout.writeInt(elementLength);
         dout.write(ADDRESS);

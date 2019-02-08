@@ -19,7 +19,7 @@ public class Registry implements Node{
     //Actual "registry" (hashed)
     public final static MessagingNodesList NODE_LIST = new MessagingNodesList();
 
-    //Registry's network information'
+    //Registry's network information
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
 

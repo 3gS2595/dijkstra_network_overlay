@@ -11,11 +11,20 @@ import java.io.DataOutputStream;
 import java.io.BufferedOutputStream;
 import java.net.Socket;
 
-public class Deregister_Response {
-    boolean debug = true;
+public class Deregister_Response implements Event {
+
+    //TODO DISABLE DEBUG TOGGLE
+    private boolean debug = true;
+    private byte[] marshaledBytes;
 
     //RECEIVES RESPONSE
-    public Deregister_Response(byte[] marshaledBytes) throws IOException {
+    Deregister_Response(byte[] marshaledBytes) throws IOException {
+        this.marshaledBytes = marshaledBytes;
+
+        //Incoming message data
+        byte STATUS;
+        String ADDITIONAL_INFO;
+
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
@@ -25,13 +34,13 @@ public class Deregister_Response {
         din.readByte();
 
         //Stores the Request Response's status code
-        byte STATUS = din.readByte();
+        STATUS = din.readByte();
 
         //Stores the Request Response's additional info
         int statusCodeLength = din.readInt();
         byte[] identifierBytes = new byte[statusCodeLength];
         din.readFully(identifierBytes);
-        String ADDITIONAL_INFO = new String(identifierBytes);
+        ADDITIONAL_INFO = new String(identifierBytes);
 
         //Final clean up
         baInputStream.close();
@@ -86,4 +95,7 @@ public class Deregister_Response {
             System.out.println();
         }
     }
+
+    public int getType(){ return 1; }
+    public byte[] getBytes(){ return this.marshaledBytes; }
 }
