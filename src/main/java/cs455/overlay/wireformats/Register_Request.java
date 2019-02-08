@@ -1,12 +1,22 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
+import cs455.overlay.node.Registry;
+import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPSender;
-import java.io.*;
-import java.net.*;
+
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
+import java.net.Socket;
 
 public class Register_Request implements Event {
-    boolean debug = true;
+
+    //TODO DISABLE DEBUG TOGGLE
+    private boolean debug = true;
     private byte[] marshaledBytes;
 
     //RECEIVES REQUEST
@@ -56,7 +66,6 @@ public class Register_Request implements Event {
 
     //SENDS REQUEST
     public Register_Request(Node Node) throws IOException {
-        boolean debug = Node.getDebug();
 
         //creates socket to server
         Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
@@ -97,10 +106,6 @@ public class Register_Request implements Event {
         }
     }
 
-    public int getType(){
-        return 1;
-    }
-    public byte[] getBytes(){
-        return this.marshaledBytes;
-    }
+    public int getType(){ return 1; }
+    public byte[] getBytes(){ return this.marshaledBytes; }
 }

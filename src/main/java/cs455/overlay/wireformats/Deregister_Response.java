@@ -1,8 +1,14 @@
 package cs455.overlay.wireformats;
 
 import cs455.overlay.transport.TCPSender;
-import cs455.overlay.node.*;
-import java.io.*;
+
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
 import java.net.Socket;
 
 public class Deregister_Response {

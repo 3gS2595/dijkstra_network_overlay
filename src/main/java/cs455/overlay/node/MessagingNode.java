@@ -3,6 +3,7 @@ package cs455.overlay.node;
 import cs455.overlay.transport.*;
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class MessagingNode implements Node{
 
@@ -16,7 +17,7 @@ public class MessagingNode implements Node{
     //MessengerNode's network information
     private String  NODE_HOST;
     private Integer NODE_PORT;
-    
+
     //CONSTRUCTOR
     private MessagingNode(String REGHOST, int REGPORT){
         this.REGISTRY_HOST = REGHOST;
@@ -39,6 +40,25 @@ public class MessagingNode implements Node{
                 System.out.println();
             }
 
+            //USER COMMAND INPUT
+            while(true){
+                String in;
+                Scanner scanner = new Scanner(System.in);
+                in = scanner.nextLine();
+                switch (in) {
+                    case "print-shortest-path":
+                        System.out.println("tat");
+                        break;
+                    case "exit-overlay":
+                        System.out.println("tat");
+                        break;
+                    default:
+                        System.out.println("command not recognized");
+                        break;
+                }
+                scanner.close();
+            }
+
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
@@ -56,16 +76,10 @@ public class MessagingNode implements Node{
         new MessagingNode(args[0], Integer.parseInt(args[1]));
     }
 
-    //Used to declare DEBUG mode on all messenger nodes
-    public boolean getDebug() { return this.debug; }
 
-    //Used in constructing registry request atm in TCPServerThread
-    //Can be used to identify type of node (reg returns -1)
+    //getters
     public String getAddr() { return this.NODE_HOST; }
     public int    getPort() { return this.NODE_PORT; }
-
     public String getRegAddr() { return this.REGISTRY_HOST; }
-    public int    getRegPort(){
-        return this.REGISTRY_PORT;
-    }
+    public int    getRegPort() { return this.REGISTRY_PORT; }
 }

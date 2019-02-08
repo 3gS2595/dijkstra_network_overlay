@@ -1,24 +1,26 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
-import cs455.overlay.transport.TCPSender;
 import java.io.*;
-import java.net.*;
 
 public class EventFactory{
 
+    //Registry's network information
     Integer REGISTRY_PORT;
-    String REGISTRY_HOST;
+    String  REGISTRY_HOST;
 
-    public EventFactory(){
-        this.REGISTRY_HOST = REGISTRY_HOST;
-        this.REGISTRY_PORT = REGISTRY_PORT;
+    //Called from registry to initialize vars
+    public void set(String REG_HOST, Integer REG_PORT){
+        this.REGISTRY_PORT = REG_PORT;
+        this.REGISTRY_HOST = REG_HOST;
     }
+
+    //Initial constructor called by registry
+    public EventFactory(){}
 
     //Unmarshalling (DECRYPT)
     public EventFactory(byte[] marshaledBytes) throws IOException {
 
-        //Reads first int of input for message type
+        //Retreives message "type" from marsheledBytes
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
@@ -27,6 +29,7 @@ public class EventFactory{
         baInputStream.close();
         din.close();
 
+        //Routes all incoming messages
         switch(type) {
             case Protocol.REGISTER_REQ:
                 new Register_Request(marshaledBytes);
@@ -43,55 +46,6 @@ public class EventFactory{
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
                 break;
-        }
-    }
-
-    public void set(String REG_HOST, Integer REG_PORT){
-        this.REGISTRY_PORT = REG_PORT;
-        this.REGISTRY_HOST = REG_HOST;
-
-    }
-
-    //Marshalling (ENCRYPT)
-    public EventFactory(Node Node, Integer protocol){
-        try{
-            //creates socket to server
-            Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
-            TCPSender sender = new TCPSender(REG_SOCKET);
-            byte[] payload;
-
-            //Initialize used streams
-            ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-            DataOutputStream dout =
-                new DataOutputStream(new BufferedOutputStream(baOutputStream));
-
-            switch(protocol){
-                case Protocol.REGISTER_REQ:
-                    //insert the register request protocol
-                    dout.writeInt(1);
-                    //insert the Address
-                    byte[] ADDRESS = (new String(Node.getAddr())).getBytes();
-                    int elementLength = ADDRESS.length;
-                    dout.writeInt(elementLength);
-                    dout.write(ADDRESS);
-                    //insert port
-                    dout.writeInt(Node.getPort());
-                    break;
-            }
-
-            //records the byte array before final clean up
-            dout.flush();
-            payload = baOutputStream.toByteArray();
-
-            //final clean up
-            baOutputStream.close();
-            dout.close();
-
-            //sends request
-            sender.sendData(payload);
-        } catch (IOException e) {
-            System.out.println("Register_request::sending request:: " + e);
-            System.exit(1);
         }
     }
 }

@@ -1,17 +1,25 @@
 package cs455.overlay.wireformats;
 
 import cs455.overlay.transport.TCPSender;
-import cs455.overlay.node.*;
-import java.io.*;
+
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
 import java.net.Socket;
 
-public class Register_Response {
-    boolean debug = true;
+public class Register_Response implements Event {
 
+    //TODO DISABLE DEBUG TOGGLE
+    private boolean debug = true;
+    private byte[] marshaledBytes;
 
     //RECEIVES RESPONSE
     public Register_Response(byte[] marshaledBytes) throws IOException {
-
+        this.marshaledBytes = marshaledBytes;
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
@@ -82,4 +90,7 @@ public class Register_Response {
             System.out.println();
         }
     }
+
+    public int getType(){ return 2; }
+    public byte[] getBytes(){ return this.marshaledBytes; }
 }

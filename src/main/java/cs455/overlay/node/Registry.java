@@ -6,6 +6,8 @@ import cs455.overlay.wireformats.MessagingNodesList;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
+
 public class Registry implements Node{
 
     //TODO DISABLE DEBUG TOGGLE
@@ -22,7 +24,7 @@ public class Registry implements Node{
     private Integer REGISTRY_PORT;
 
     //CONSTRUCTOR
-    private Registry(int ARG_REGISTER_PORT){
+    private Registry(int ARG_REGISTER_PORT) {
         this.REGISTRY_PORT = ARG_REGISTER_PORT;
 
         //Records the Server address of the used machine
@@ -30,7 +32,7 @@ public class Registry implements Node{
         try {
             this.REGISTRY_HOST = InetAddress.getLocalHost().getHostName();
             Factory.set(this.REGISTRY_HOST, this.REGISTRY_PORT);
-            if(debug) {
+            if (debug) {
                 System.out.println("INITIALIZED REGISTRY NODE");
                 System.out.println("SERVER_ADDRESS: " + REGISTRY_HOST);
                 System.out.println("PORT          : " + REGISTRY_PORT);
@@ -39,9 +41,34 @@ public class Registry implements Node{
 
             Thread newServerThread = new Thread(new TCPServerThread(REGISTRY_PORT, this));
             newServerThread.start();
-        } catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
+        }
+
+        //USER COMMAND INPUT
+        while(true){
+            String in;
+            Scanner scanner = new Scanner(System.in);
+            in = scanner.nextLine();
+            switch (in) {
+                case "list-messaging-nodes":
+                    System.out.println("tat");
+                    break;
+                case "list-weights":
+                    System.out.println("tat");
+                    break;
+                case "setup-overlay number-of-connections":
+                    System.out.println("tat");
+                    break;
+                case "send-overlay-link-weights":
+                    System.out.println("tat");
+                    break;
+                default:
+                    System.out.println("command not recognized");
+                    break;
+            }
+            scanner.close();
         }
     }
 
@@ -55,12 +82,11 @@ public class Registry implements Node{
     }
 
 
-    public String getAddr(){
-        return REGISTRY_HOST;
-    }
+    //GETTERS
+    public String getAddr(){ return REGISTRY_HOST; }
     public int    getPort() { return  REGISTRY_PORT;  }
 
-    //SHOULD NEVER GET CALLED ON A REGISTRY NODE
+    //SHOULD NOT BE CALLED ON REGISTRY NODE EVER
     public String getRegAddr() { return "-1"; }
     public int    getRegPort() { return  -1;  }
 }

@@ -6,17 +6,15 @@ public class MessagingNodesList {
     //Hash map that houses all the node information
     //Each entry will include SERVER_ADDRESS and PORT
     //Key is the node's SERVER_ADDRESS
-    private HashMap NODE_REGISTRY_HASH;
+    private HashMap<String, Pair> NODE_REGISTRY_HASH = new HashMap<String, Pair>();
 
     //CONSTRUCTOR
-    public MessagingNodesList(){
-        NODE_REGISTRY_HASH = new HashMap();
-    }
+    public MessagingNodesList(){}
 
     String ADD_NODE(String ADDRESS, int PORT){
         String HASHKEY = ADDRESS + PORT;
         if(!NODE_REGISTRY_HASH.containsKey(HASHKEY)){
-            NODE_REGISTRY_HASH.put(HASHKEY, new pair(PORT, ADDRESS));
+            NODE_REGISTRY_HASH.put(HASHKEY, new Pair(PORT, ADDRESS));
             return "1NODE REGISTERED";
         }
         return "0NODE ALREADY REGISTERED";
@@ -30,10 +28,28 @@ public class MessagingNodesList {
         }
         return "0NODE NOT REGISTERED";
     }
+
+    class Pair{
+        private Integer PORT; //first member of pair
+        private String ADDRESS; //second member of pair
+
+        public Pair(Integer PORT, String ADDRESS) {
+            this.PORT = PORT;
+            this.ADDRESS = ADDRESS;
+        }
+
+        //GETTERS
+        public Integer getPORT() { return PORT; }
+        public String getADDRESS() { return ADDRESS; }
+
+        //COMPARE
+        public boolean Compare(Pair x, Pair y){
+            if(x.getADDRESS() == y.getADDRESS()
+                && x.getPORT() == y.getPORT())
+                return true;
+            return false;
+        }
+    }
 }
 
-class pair {
-    int PORT;
-    String ADDRESS;
-    pair(int v, String w) { this.PORT = v; this.ADDRESS = w;}
-}
+

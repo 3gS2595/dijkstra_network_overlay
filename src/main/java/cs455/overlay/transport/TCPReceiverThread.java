@@ -1,14 +1,11 @@
 package cs455.overlay.transport;
 
 //This is the client program.
-import cs455.overlay.wireformats.*;
-import cs455.overlay.node.*;
-
+import cs455.overlay.wireformats.EventFactory;
 import java.io.*;
 import java.net.*;
 
 public class TCPReceiverThread implements Runnable{
-    private Node             Node;
     private Socket           socketToTheServer;
     private DataInputStream  din;
 
@@ -36,8 +33,7 @@ public class TCPReceiverThread implements Runnable{
         }
     }
 
-    public TCPReceiverThread(Socket socket, Node Node) throws IOException {
-        this.Node = Node;
+    public TCPReceiverThread(Socket socket) throws IOException {
         this.socketToTheServer = socket;
         this.din = new DataInputStream(socket.getInputStream());
     }

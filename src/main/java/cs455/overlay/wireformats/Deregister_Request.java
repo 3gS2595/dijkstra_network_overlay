@@ -1,9 +1,17 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
+import cs455.overlay.node.Registry;
+import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPSender;
-import java.io.*;
-import java.net.*;
+
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
+import java.net.Socket;
 
 public class Deregister_Request implements Event {
     private String  NODE_ADDRESS;
@@ -53,7 +61,6 @@ public class Deregister_Request implements Event {
 
     //SENDS REQUEST
     public Deregister_Request(Node Node) throws IOException {
-        debug = Node.getDebug();
 
         //creates socket to server
         Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
