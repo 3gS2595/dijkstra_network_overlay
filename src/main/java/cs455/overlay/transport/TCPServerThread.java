@@ -42,7 +42,7 @@ public class TCPServerThread implements Runnable{
             System.out.println(se.getMessage());
             System.exit(1);
         } catch (IOException ioe) {
-            System.out.println(ioe.getMessage()) ;
+            System.out.println(ioe.getMessage());
             System.exit(1);
         }
     }

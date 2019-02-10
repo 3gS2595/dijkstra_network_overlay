@@ -2,7 +2,7 @@ package cs455.overlay.transport;
 
 //This is the client program.
 import cs455.overlay.node.Registry;
-import cs455.overlay.wireformats.EventFactory;
+
 import java.io.*;
 import java.net.*;
 
