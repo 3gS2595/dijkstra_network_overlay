@@ -8,8 +8,6 @@ public class HWONE{
     static int total = 0;
     int cnt = 0;
     int cnt2 = 0;
-    boolean failure = false;
-
 
     public static void main(String[] args) {
         if (args.length == 1)
@@ -116,22 +114,6 @@ public class HWONE{
         }
     }
 
-
-    //checks to see if a line is present within a line[]
-    private boolean contains(line[] data, line line){
-        for (int x = 0; x < 15; x++) {
-            if (data[x] != null) {
-                if (   ((data[x].v2 == line.v2)
-                    || (data[x].v2 == line.v1))
-                    && ((data[x].v1 == line.v2)
-                    || (data[x].v1 == line.v1))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     //checks for winners
     private int notOver(Node node){
         for (int vect1 = 0; vect1 < node.data.length; vect1++) {
@@ -168,7 +150,7 @@ public class HWONE{
                                     }
                                     if(node.data[vect1].getColor() == 2) {
                                         cnt2++;
-                                        //System.out.println(node.ts());
+                                        System.out.println(node.ts());
                                         return 2;
                                     }
                                 }
@@ -296,5 +278,20 @@ public class HWONE{
                 return true;
             return false;
         }
+    }
+
+    //checks to see if a line is present within a line[]
+    private boolean contains(line[] data, line line){
+        for (int x = 0; x < 15; x++) {
+            if (data[x] != null) {
+                if (   ((data[x].v2 == line.v2)
+                    || (data[x].v2 == line.v1))
+                    && ((data[x].v1 == line.v2)
+                    || (data[x].v1 == line.v1))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
