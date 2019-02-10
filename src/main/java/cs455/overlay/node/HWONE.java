@@ -5,6 +5,7 @@ import java.util.*;
 
 public class HWONE{
     private static int numVertices = 6;
+    static int total = 0;
     int cnt = 0;
     int cnt2 = 0;
 
@@ -18,8 +19,8 @@ public class HWONE{
 
 
         //creates a root node with one move made
-        List<line> data = new ArrayList<>();
-        data.add(new line(1,2, 2));
+        line[] data = new line[15];
+        data[0] = new line(1,2, 2);
         Node root = new Node(data);
         HWONE game = new HWONE();
         game.play(root, 1);
@@ -34,7 +35,7 @@ public class HWONE{
         //base case is in move method
         //System.out.println("play: children: " + root.getNum());
         //creates the children
-        if(root.children.size() == 0){
+        if(root.getNum() == 0){
             move(root, player);
         }
         if(player == 1)
@@ -42,16 +43,17 @@ public class HWONE{
         else if (player == 2)
             player = 1;
         //creates the grandchildren
-        if(root.children.size() != 0){
-            for (int child = 1; child < root.children.size(); child++){
+        if(root.getNum() != 0){
+            for (int child = 0; child < root.getNum(); child++){
                 if(notOver(root))
-                    play(root.children.get(child), player);
+                    play(root.children[child], player);
+                    System.out.println(total);
             }
         }
     }
 
     private void move(Node node, int player){
-        List<line> data = new ArrayList<>(node.getData());
+        line[] data = node.getData().clone();
         //BASE CASE FOR RECURSION
         if(node.getNum() == 14) {
             System.out.println(node.getData().toString());
@@ -61,12 +63,24 @@ public class HWONE{
                 for (int v2 = 0; v2 < numVertices; v2++) {
                     //If the move is available
                     if ((v1 != v2)
-                        && !(data.contains(new line(v1, v2, 1)) || data.contains(new line(v1, v2, 2)))
-                        && !(data.contains(new line(v2, v1, 1)) || data.contains(new line(v2, v1, 2)))) {
-                        data.add(new line(v1, v2, player));
+                        && !((contains(data, (new line(v1, v2, 1)))) || (contains(data, (new line(v1, v2, 2)))))
+                        && !((contains(data, (new line(v2, v1, 1)))) || (contains(data, (new line(v2, v1, 2))))))
+                    {
+                        for (int x = 0; x < 15; x++) {
+                            if (data[x] == null) {
+                                data[x] = new line(v1, v2, player);
+                                x = 16;
+                            }
+                        }
 
-                        List<line> nn = new ArrayList<>(node.getData());
-                        nn.add(new line(v1, v2, player));
+                        line[] nn = node.getData().clone();
+                        for (int x = 0; x < 15; x++) {
+                            if (nn[x] == null) {
+                                nn[x] = new line(v1, v2, player);
+                                x = 16;
+                            }
+
+                        }
                         node.addChild(new Node(nn));
                     }
                 }
@@ -74,24 +88,34 @@ public class HWONE{
         }
     }
 
-    private boolean notOver(Node node){
-        for (int vect1 = 0; vect1 < node.data.size(); vect1++) {
-            for (int vect2 = 0; vect2 < node.data.size(); vect2++) {
-                //if not overlapping with other loop
-                if ((vect1 != vect2)){
-                    //if the vectors connect
-                    if((node.data.get(vect1).connects(node.data.get(vect2)))) {
-                        //if two connecting line are found it looks for a third
-                        for (int vect3 = 0; vect3 < node.data.size(); vect3++) {
-                            //if not overlapping with other loops
-                            if ((vect3 != vect2) && (vect3 != vect1)){
-                                //if the third vector connects the loop
-                                if(node.data.get(vect3).connects(node.data.get(vect1),(node.data.get(vect2)))){
+    private boolean contains(line[] data, line line){
+        for (int x = 0; x < 15; x++) {
+            if (data[x] != null) {
+                if (data[x].equal(line)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-                                    if(node.data.get(vect1).getColor() == 1) {
+    private boolean notOver(Node node){
+        for (int vect1 = 0; vect1 < node.getNum(); vect1++) {
+            for (int vect2 = 0; vect2 < node.getNum(); vect2++) {
+                //if not overlapping with other loop
+                if ((vect1 != vect2) && (node.data[vect1] != null) && (node.data[vect2] != null)){
+                    //if the vectors connect
+                    if((node.data[vect1].connects(node.data[vect2]))) {
+                        //if two connecting line are found it looks for a third
+                        for (int vect3 = 0; vect3 < node.getNum(); vect3++) {
+                            //if not overlapping with other loops
+                            if ((vect3 != vect2) && (vect3 != vect1) && (node.data[vect3] != null)){
+                                //if the third vector connects the loop
+                                if(node.data[vect3].connects(node.data[vect1],(node.data[vect2]))){
+                                    if(node.data[vect1].getColor() == 1) {
                                         cnt++;
                                     }
-                                    if(node.data.get(vect1).getColor() == 2) {
+                                    if(node.data[vect1].getColor() == 2) {
                                         cnt2++;
                                     }
                                     return false;
@@ -106,33 +130,54 @@ public class HWONE{
     }
 
     private static class Node{
-        List<line> data;
-        List<Node> children = new ArrayList<>();
+        line[] data = new line[15];
+        Node[] children = new Node[15];
 
         //CONSTRUCTOR
-        Node(List<line> data){
+        Node(line[] data){
             this.data = data;
         }
         Node(){};
 
         void isNow(Node node){
-            this.data = new ArrayList<>(node.data);
-            this.children = new ArrayList<>(node.children);
+            this.data = node.data.clone();
+            this.children = node.children.clone();
+        }
+
+        String ts(){
+            String string = "";
+            for (int x = 0; x < 15; x++){
+                if(data[x] != null) {
+                    string += this.data[x].ts();
+                }
+            }
+            return string;
         }
 
         //ADDS A CHILD
         void addChild(Node node){
-            this.children.add(node);
+            for (int x = 0; x < 15; x++) {
+                if (this.children[x] == null) {
+                    this.children[x] = node;
+                    x = 16;
+                }
+            }
+            total++;
         }
 
         //GET CHILDREN
-        List<line> getData(){
+        line[] getData(){
             return this.data;
         }
 
         //GET CHILDREN
         int getNum(){
-            return this.children.size();
+            int count = 0;
+            for (int x = 0; x < 15; x++) {
+                if (this.children[x] != null)
+                    count++;
+            }
+            return count;
         }
 
 
@@ -155,10 +200,12 @@ public class HWONE{
         public int getColor() { return color; }
 
         public boolean connects(line line){
-            if  ((  this.v1 == line.v2) || (this.v1 == line.v1)
-                || (this.v2 == line.v1) || (this.v2 == line.v2)
-                && (this.getColor() == line.getColor())) {
-                return true;
+            if (line instanceof line && this instanceof line) {
+                if ((this.v1 == line.v2) || (this.v1 == line.v1)
+                    || (this.v2 == line.v1) || (this.v2 == line.v2)
+                    && (this.getColor() == line.getColor())) {
+                    return true;
+                }
             }
             return false;
         }
@@ -183,14 +230,17 @@ public class HWONE{
             return ret;
         }
 
+        public void isNow(line o){
+            this.v1 = o.v1;
+            this.v2 = o.v2;
+            this.color = o.v2;
+        }
         //COMPARE
-        public boolean equals(Object o){
-            if(o instanceof line){
-                if ((((line) o).getColor() == this.getColor())
-                    && (((line) o).getV1() == this.getV1())
-                    && (((line) o).getV2() == this.getV2()))
+        public boolean equal(line o){
+            if (o.getColor() == this.getColor()
+                    && (o.getV1() == this.getV1())
+                    && (o.getV2() == this.getV2()))
                     return true;
-            }
             return false;
         }
     }
