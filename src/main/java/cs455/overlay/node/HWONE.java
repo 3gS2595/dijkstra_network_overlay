@@ -8,6 +8,7 @@ public class HWONE{
     static int total = 0;
     int cnt = 0;
     int cnt2 = 0;
+    boolean failure = false;
 
 
     public static void main(String[] args) {
@@ -21,6 +22,7 @@ public class HWONE{
         //creates a root node with one move made
 
     }
+
     private void run(){
         line[] data = new line[15];
         data[0] = new line((byte)0,(byte)1, (byte)1);
@@ -29,6 +31,7 @@ public class HWONE{
         System.out.println("player A: " + cnt);
         System.out.println("player B: " + cnt2);
     }
+
     private void play(Node root, byte turn){
         byte player = turn;
         //base case is in move method
@@ -36,19 +39,6 @@ public class HWONE{
         //creates the children
         if(root.getNum() == 0){
             move(root, player);
-        }
-        int checked = 0;
-        if(root.getNum() != 0) {
-            for (int child = 0; child < root.getNum(); child++) {
-                if(!notOver(root.children[child])) {
-                    checked++;
-                    if (checked == root.getNum()) {
-                        for (int winners = 0; winners < root.getNum(); winners++) {
-                            System.out.println(root.children[child].ts());
-                        }
-                    }
-                }
-            }
         }
 
         //changes players after every move
@@ -62,55 +52,63 @@ public class HWONE{
         //CONTINUE UNTIL ONE CBRANCH DOES NOT FIND FAILUE
         //send failure flag around with parent?
 
-        if(total % 100000 == 0) {
+        if(total % 10000 == 0) {
             System.out.println(total);
-            System.out.println(cnt);
             System.out.println(cnt2);
+            System.out.println();
         }
 
         //creates the grandchildren
         if(root.getNum() != 0){
             for (int child = 0; child < root.getNum(); child++){
-                    play(root.children[child], player);
+                play(root.children[child], player);
             }
         }
     }
 
+    //looks at what moves are possible
     private void move(Node node, byte player){
         line[] data = node.getData().clone();
+        line[] tested = new line[15];
         //BASE CASE FOR RECURSION
         // isolate to one scenario
         //if it finds a winner from player b quit
-        boolean failure = false;
-        for (int child = 0; child < node.getNum(); child++) {
-            if (!notOver(node.children[child])){
-                failure = true;
-            }
-        }
 
         //cycles through all possible lines
-        if(!failure) {
-            for (byte v1 = 0; v1 < numVertices; v1++) {
-                for (byte v2 = 0; v2 < numVertices; v2++) {
-                    //If the move is available
-                    if ((v1 != v2)
-                        && !((contains(data, (new line(v1, v2, (byte) 1)))) || (contains(data, (new line(v1, v2, (byte) 2)))))
-                        && !((contains(data, (new line(v2, v1, (byte) 1)))) || (contains(data, (new line(v2, v1, (byte) 2)))))) {
-                        for (int x = 0; x < 15; x++) {
-                            if (data[x] == null) {
-                                data[x] = new line(v1, v2, player);
-                                x = 16;
-                            }
+        for (byte v1 = 0; v1 < numVertices; v1++) {
+            for (byte v2 = 0; v2 < numVertices; v2++) {
+                //If the move is available
+                if ((v1 != v2)
+                    && !(contains(data, (new line(v1, v2, (byte) 1))))
+                    && !(contains(tested, (new line(v1, v2, (byte) 1))))) {
+
+                    for (int x = 0; x < 15; x++) {
+                        if (data[x] == null) {
+                            data[x] = new line(v1, v2, player);
+                            x = 16;
+                        }
+                    }
+                    for (int x = 0; x < 15; x++) {
+                        if (tested[x] == null) {
+                            tested[x] = new line(v1, v2, player);
+                            x = 16;
+                        }
+                    }
+
+                    line[] nn = node.getData().clone();
+                    for (int x = 0; x < 15; x++) {
+                        if (nn[x] == null) {
+                            nn[x] = new line(v1, v2, player);
+                            x = 16;
                         }
 
-                        line[] nn = node.getData().clone();
-                        for (int x = 0; x < 15; x++) {
-                            if (nn[x] == null) {
-                                nn[x] = new line(v1, v2, player);
-                                x = 16;
-                            }
+                    }
 
-                        }
+                    //finds any lost games to PLAYER A
+                    if (notOver(new Node(nn)) == 1){
+                        node.children = new Node[15];
+                        return;
+                    } else {
                         node.addChild(new Node(nn));
                     }
                 }
@@ -118,10 +116,15 @@ public class HWONE{
         }
     }
 
+
+    //checks to see if a line is present within a line[]
     private boolean contains(line[] data, line line){
         for (int x = 0; x < 15; x++) {
             if (data[x] != null) {
-                if (data[x].equal(line)) {
+                if (   ((data[x].v2 == line.v2)
+                    || (data[x].v2 == line.v1))
+                    && ((data[x].v1 == line.v2)
+                    || (data[x].v1 == line.v1))) {
                     return true;
                 }
             }
@@ -129,14 +132,15 @@ public class HWONE{
         return false;
     }
 
-    private boolean notOver(Node node){
+    //checks for winners
+    private int notOver(Node node){
         for (int vect1 = 0; vect1 < node.data.length; vect1++) {
             for (int vect2 = 0; vect2 < node.data.length; vect2++) {
                 //if not overlapping with other loop
                 if ((vect1 != vect2)
                     && (node.data[vect1] != null)
                     && (node.data[vect2] != null)
-                    && (node.data[vect1].getColor() ==1 && node.data[vect2].getColor()==1)){
+                    && (node.data[vect1].getColor() == node.data[vect2].getColor())){
 
                     String connects = Byte.toString(node.data[vect1].v1) + Byte.toString(node.data[vect1].v2)
                         + Byte.toString(node.data[vect2].v1) + Byte.toString(node.data[vect2].v2);
@@ -158,13 +162,15 @@ public class HWONE{
 
                                     if(node.data[vect1].getColor() == 1) {
                                         cnt++;
-                                        System.out.println("1");
+                                        return 1;
+                                        //System.out.println(node.ts());
+                                        //System.out.println("1");
                                     }
                                     if(node.data[vect1].getColor() == 2) {
                                         cnt2++;
-                                        System.out.println("2");
+                                        //System.out.println(node.ts());
+                                        return 2;
                                     }
-                                    return false;
                                 }
                             }
                         }
@@ -172,7 +178,7 @@ public class HWONE{
                 }
             }
         }
-        return true;
+        return 0;
     }
 
     private class Node{
