@@ -24,65 +24,26 @@ public class HWONE{
     private void run(){
         line[] data = new line[15];
         data[0] = new line((byte)0,(byte)1, (byte)1);
-        Node root = new Node(data);
+        Node root = new Node(data, (byte) 2);
 
-        BreadthFirstSearch bfs = new BreadthFirstSearch(root, (byte)2);
+        BreadthFirstSearch bfs = new BreadthFirstSearch(root);
 
-        if(bfs.compute((byte)2))
+        if(bfs.compute())
             System.out.print("Path Found!");
     }
 
 
-    private void move(Node node, byte player){
-        //TODO MOVE THE KID GENERATION INTO HERE WTF;
-        line[] tested = node.moves.clone();
-        //cycles through all possible lines
-        for (byte v1 = 0; v1 < numVertices; v1++) {
-            for (byte v2 = 0; v2 < numVertices; v2++) {
-                //If the move is available
-                if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
-
-                    for (int x = 0; x < 15; x++) {
-                        if (tested[x] == null) {
-                            tested[x] = new line(v1, v2, player);
-                            x = 16;
-                        }
-                    }
-
-                    line[] nn = node.moves.clone();
-                    nn[getNumberOfMOves(node)] = new line(v1, v2, player);
-                    node.addChild(new Node(nn));
-                }
-            }
-        }
-        //
-        if (player == 1) {
-            player = 2;
-        } else { player = 1; }
-        //finds any complete games
-        for(int child = 0; child < getNumberOfChildren(node); child++) {
-            int ret = (notOver(node.children[child]));
-            if (ret == 2) {
-                node = null;
-            } else if (ret == 1) {
-                child = 100;
-            } else {
-                move(node.children[child], player);
-            }
-        }
-    }
 
     public class BreadthFirstSearch {
-
         Node startNode;
         Node goalNode;
 
-        public BreadthFirstSearch(Node start, int wat){
+        public BreadthFirstSearch(Node start){
             this.startNode = start;
             this.goalNode = null;
         }
 
-        public boolean compute(byte player){
+        public boolean compute(){
 
             if(this.startNode.equals(goalNode)){
                 System.out.println("Goal Node Found!");
@@ -101,10 +62,11 @@ public class HWONE{
                     return true;
                 }
                 else{
-                    if(current.getChildren(player).isEmpty())
+                    ArrayList<Node> move = current.getChildren();
+                    if(move.isEmpty())
                         return false;
                     else
-                        queue.addAll(current.getChildren(player));
+                        queue.addAll(move);
                 }
                 explored.add(current);
             }
@@ -202,10 +164,12 @@ public class HWONE{
     private class Node{
         line[] moves = new line[15];
         Node[] children = new Node[15];
+        byte player;
 
         //CONSTRUCTOR
-        private Node(line[] moves){
+        private Node(line[] moves, byte player){
             this.moves = moves.clone();
+            this.player = player;
         }
 
         private String ts(){
@@ -229,7 +193,7 @@ public class HWONE{
             total++;
         }
 
-        public ArrayList<Node> getChildren(byte player){
+        public ArrayList<Node> getChildren(){
             ArrayList<Node> childNodes = new ArrayList<>();
             line[] tested = this.moves.clone();
             //cycles through all possible lines
@@ -245,11 +209,15 @@ public class HWONE{
                                 x = 16;
                             }
                         }
+                        byte newTurn;
+                        if (this.player == 1) {
+                            newTurn = 2;
+                        } else { newTurn = 1; }
                         //adds the child
                         line[] nn = this.moves.clone();
                         nn[getNumberOfMOves(this)] = new line(v1, v2, player);
-                        notOver(new Node(nn));
-                        childNodes.add(new Node(nn));
+                        notOver(new Node(nn,newTurn));
+                        childNodes.add(new Node(nn,newTurn));
                     }
                 }
             }
