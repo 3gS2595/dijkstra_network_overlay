@@ -180,15 +180,14 @@ public class HWONE{
                     desiredPlayer = 2;
                 else desiredPlayer = 1;
             }
-            //B will obstruct A
-            //or if "negated" B will help A
+
+            //B(notwanted) will obstruct A
             if((tested[getNumberOfMOves(this)-1].getColor() == desiredPlayer) && (negated == 0)) {
                 for (byte v1 = 0; v1 < numVertices; v1++) {
                     for (byte v2 = 0; v2 < numVertices; v2++) {
                         if ((v1 != v2) && (!contains(tested, (new line(v1, v2, desiredPlayer))))) {
                             nn[getNumberOfMOves(this)] = new line(v1, v2, desiredPlayer);
                             Node temp = new Node(nn, desiredPlayer);
-
                             //this blocks the other from winning as best as they can
                             if (notOver(temp) == desiredPlayer) {
                                 nn[getNumberOfMOves(this)] = new line(v1, v2, notWanted);
@@ -217,7 +216,8 @@ public class HWONE{
                                 }
                             }
                             byte newTurn;
-                            if (this.player == 1) {
+                            byte oldTurn;
+                            if ( this.moves[getNumberOfMOves(this)-1].getColor() == 1) {
                                 newTurn = 2;
                             } else {
                                 newTurn = 1;
