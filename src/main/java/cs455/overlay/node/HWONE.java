@@ -1,5 +1,9 @@
 package cs455.overlay.node;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
 
 
 public class HWONE{
@@ -176,29 +180,22 @@ public class HWONE{
                     desiredPlayer = 2;
                 else desiredPlayer = 1;
             }
-            if(negated == 1){
-                desiredPlayer = tested[getNumberOfMOves(this)-1].getColor();
-                if(desiredPlayer == 1)
-                    notWanted = 2;
-                else notWanted = 1;
-            }
             //B will obstruct A
             //or if "negated" B will help A
-            if(tested[getNumberOfMOves(this)-1].getColor() == desiredPlayer) {
+            if((tested[getNumberOfMOves(this)-1].getColor() == desiredPlayer) && (negated == 0)) {
                 for (byte v1 = 0; v1 < numVertices; v1++) {
                     for (byte v2 = 0; v2 < numVertices; v2++) {
                         if ((v1 != v2) && (!contains(tested, (new line(v1, v2, desiredPlayer))))) {
                             nn[getNumberOfMOves(this)] = new line(v1, v2, desiredPlayer);
                             Node temp = new Node(nn, desiredPlayer);
+
                             //this blocks the other from winning as best as they can
                             if (notOver(temp) == desiredPlayer) {
-                                //does not place where the other could win
-                                    nn[getNumberOfMOves(this)] = new line(v1, v2, notWanted);
-                                    temp = new Node(nn, notWanted);
-                                    childNodes.add(new Node(temp.moves, notWanted));
-                                    BStoppedA = 1;
-                                    total++;
-
+                                nn[getNumberOfMOves(this)] = new line(v1, v2, notWanted);
+                                temp = new Node(nn, notWanted);
+                                childNodes.add(new Node(temp.moves, notWanted));
+                                BStoppedA = 1;
+                                total++;
                             }
                         }
                     }
@@ -226,10 +223,19 @@ public class HWONE{
                                 newTurn = 1;
                             }
                             //adds the child
+
                             nn = this.moves.clone();
                             nn[getNumberOfMOves(this)] = new line(v1, v2, player);
-                            childNodes.add(new Node(nn, newTurn));
-                            total++;
+                            if (negated == 1) {
+                                if ((notOver(new Node(nn, newTurn)) == 0)){
+                                    childNodes.add(new Node(nn, newTurn));
+                                    total++;
+                                }
+
+                            } else {
+                                childNodes.add(new Node(nn, newTurn));
+                                total++;
+                            }
                         }
                     }
                 }
@@ -307,15 +313,17 @@ public class HWONE{
                                     if (node.moves[vect1].getColor() == 1) {
                                         cnt++;
                                         //System.out.println("1 " + node.ts());
-                                        if(negated == 1)
+                                        if(negated == 1) {
                                             return 2;
+                                        }
                                         return 1;
                                     }
                                     if (node.moves[vect1].getColor() == 2) {
                                         cnt2++;
                                         //System.out.println("2 " + node.ts());
-                                        if(negated == 2)
+                                        if(negated == 2) {
                                             return 1;
+                                        }
                                         return 2;
                                     }
                                 }
