@@ -63,11 +63,16 @@ public class HWONE{
                 }
                 else{
                     ArrayList<Node> move = current.getChildren();
+                    for(int i = 0; i < move.size(); i++){
+                        if(notOver(move.get(i)) == 2) {
+                            return false;
+                        }
+                    }
                     if(move.isEmpty())
                         return false;
                     else
                         queue.addAll(move);
-                }
+                }{}
                 explored.add(current);
             }
 
@@ -162,6 +167,7 @@ public class HWONE{
 
     //GAMEBOARD (AND CHILDREN)
     private class Node{
+
         line[] moves = new line[15];
         Node[] children = new Node[15];
         byte player;
@@ -180,17 +186,6 @@ public class HWONE{
                 }
             }
             return string;
-        }
-
-        //ADDS A CHILD
-        private void addChild(Node node){
-            for (int x = 0; x < 15; x++) {
-                if (this.children[x] == null) {
-                    this.children[x] = node;
-                    x = 16;
-                }
-            }
-            total++;
         }
 
         public ArrayList<Node> getChildren(){
@@ -216,14 +211,12 @@ public class HWONE{
                         //adds the child
                         line[] nn = this.moves.clone();
                         nn[getNumberOfMOves(this)] = new line(v1, v2, player);
-                        notOver(new Node(nn,newTurn));
                         childNodes.add(new Node(nn,newTurn));
                     }
                 }
             }
             return childNodes;
         }
-
     }
 
     private int getNumberOfMOves(Node node){
@@ -231,18 +224,6 @@ public class HWONE{
         for (int x = 0; x < 15; x++) {
             if (node.moves[x] != null)
                 count++;
-        }
-        return count;
-    }
-
-    private int getNumberOfChildren(Node node){
-        int count = 0;
-        if(node != null) {
-            for (int x = 0; x < 15; x++) {
-                if (node.children[x] != null) {
-                    count++;
-                }
-            }
         }
         return count;
     }
