@@ -32,8 +32,6 @@ public class HWONE{
             System.out.print("Path Found!");
     }
 
-
-
     public class BreadthFirstSearch {
         Node startNode;
         Node goalNode;
@@ -45,9 +43,10 @@ public class HWONE{
 
         public boolean compute(){
 
-            if(this.startNode.equals(goalNode)){
+            if(notOver(startNode) == 1){
                 System.out.println("Goal Node Found!");
                 System.out.println(startNode);
+                System.exit(1);
             }
 
             Queue<Node> queue = new LinkedList<>();
@@ -65,7 +64,7 @@ public class HWONE{
                     int skip = 0;
                     ArrayList<Node> move = current.getChildren();
                     for(int i = 0; i < move.size(); i++){
-                       if(notOver(move.get(i)) != 0)
+                       if(notOver(move.get(i)) == 2)
                            skip = 1;
                     }
                     if(skip == 0)
@@ -82,6 +81,7 @@ public class HWONE{
 
     //CHECK FOR ENDGAME
     private byte notOver(Node node){
+        System.out.println("1 " + node.ts());
         for (int vect1 = 0; vect1 < getNumberOfMOves(node); vect1++) {
             for (int vect2 = 0; vect2 < getNumberOfMOves(node); vect2++) {
                 if((node.moves[vect1].getColor() == node.moves[vect2].getColor())){
@@ -186,30 +186,54 @@ public class HWONE{
             return string;
         }
 
+
+        //B will obstruct A
         public ArrayList<Node> getChildren(){
             ArrayList<Node> childNodes = new ArrayList<>();
             line[] tested = this.moves.clone();
-            //cycles through all possible lines
-            for (byte v1 = 0; v1 < numVertices; v1++) {
-                for (byte v2 = 0; v2 < numVertices; v2++) {
-                    //If the move is available
-                    if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
-
-                        //adds move to history
-                        for (int x = 0; x < 15; x++) {
-                            if (tested[x] == null) {
-                                tested[x] = new line(v1, v2, player);
-                                x = 16;
-                            }
-                        }
-                        byte newTurn;
-                        if (this.player == 1) {
-                            newTurn = 2;
-                        } else { newTurn = 1; }
-                        //adds the child
+            int stoppedA = 0;
+            if(this.player == 1) {
+                for (byte v1 = 0; v1 < numVertices; v1++) {
+                    for (byte v2 = 0; v2 < numVertices; v2++) {
                         line[] nn = this.moves.clone();
                         nn[getNumberOfMOves(this)] = new line(v1, v2, player);
-                        childNodes.add(new Node(nn,newTurn));
+                        if (notOver(new Node(nn, (byte) 1)) == 1) {
+                            childNodes.add(new Node(nn, (byte) 2));
+                            stoppedA = 1;
+                        }
+                    }
+                }
+            }
+            if(stoppedA == 0){
+                //cycles through all possible lines
+                for (byte v1 = 0; v1 < numVertices; v1++) {
+                    for (byte v2 = 0; v2 < numVertices; v2++) {
+
+                        //if B is making this move
+
+                        //If the move is available
+                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
+
+
+                            //adds move to history
+                            for (int x = 0; x < 15; x++) {
+                                if (tested[x] == null) {
+                                    tested[x] = new line(v1, v2, player);
+                                    x = 16;
+                                }
+                            }
+                            byte newTurn;
+                            if (this.player == 1) {
+                                newTurn = 2;
+                            } else {
+                                newTurn = 1;
+                            }
+                            //adds the child
+                            line[] nn = this.moves.clone();
+                            nn[getNumberOfMOves(this)] = new line(v1, v2, player);
+                            childNodes.add(new Node(nn, newTurn));
+
+                        }
                     }
                 }
             }
