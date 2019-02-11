@@ -33,9 +33,9 @@ public class HWONE{
         System.out.println("Negate winning condition? Y(yes) or N(no)");
         String firstPlay = String.valueOf(scanner.next().charAt(0));
         if(firstPlay.toUpperCase().equals("Y"))
-            negate = 0;
-        if(firstPlay.toUpperCase().equals("N"))
             negate = 1;
+        if(firstPlay.toUpperCase().equals("N"))
+            negate = 0;
 
         //creates desired search
         if(answer.toUpperCase().equals("A")){
@@ -59,7 +59,7 @@ public class HWONE{
 
         line[] data = new line[15];
         data[0] = new line((byte)0,(byte)1, (byte)1);
-        Node root = new Node(data, (byte)1);
+        Node root = new Node(data, (byte)2);
         BreadthFirstSearch bfs = new BreadthFirstSearch(root, desiredPlayer, negate);
         bfs.compute();
 
@@ -179,32 +179,36 @@ public class HWONE{
             }
 
             //B will obstruct A
+            //or if "negated" B will help A
             if(tested[getNumberOfMOves(this)-1].getColor() == desiredPlayer) {
                 for (byte v1 = 0; v1 < numVertices; v1++) {
                     for (byte v2 = 0; v2 < numVertices; v2++) {
                         if ((v1 != v2) && (!contains(tested, (new line(v1, v2, desiredPlayer))))) {
                             nn[getNumberOfMOves(this)] = new line(v1, v2, desiredPlayer);
                             Node temp = new Node(nn, desiredPlayer);
+                            //this blocks the other from winning as best as they can
                             if (notOver(temp) == desiredPlayer) {
-                                nn[getNumberOfMOves(this)] = new line(v1, v2, notWanted);
-                                temp = new Node(nn, notWanted);
-                                childNodes.add(new Node(temp.moves, notWanted));
-                                BStoppedA = 1;
-                                total++;
+                                //does not place where the other could win
+                                    nn[getNumberOfMOves(this)] = new line(v1, v2, notWanted);
+                                    temp = new Node(nn, notWanted);
+                                    childNodes.add(new Node(temp.moves, notWanted));
+                                    BStoppedA = 1;
+                                    total++;
+
                             }
                         }
                     }
                 }
             }
             if(BStoppedA == 0){
-                //cycles through all possible lines
+                //cycles through all possible moves
                 for (byte v1 = 0; v1 < numVertices; v1++) {
                     for (byte v2 = 0; v2 < numVertices; v2++) {
 
                         //If the move is available
                         if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte)1))))) {
 
-                            //adds move to history
+                            //adds move to history before playing
                             for (int x = 0; x < 15; x++) {
                                 if (tested[x] == null) {
                                     tested[x] = new line(v1, v2, player);
@@ -306,7 +310,7 @@ public class HWONE{
                                     if (node.moves[vect1].getColor() == 2) {
                                         cnt2++;
                                         //System.out.println("2 " + node.ts());
-                                        if(negated == 1)
+                                        if(negated == 2)
                                             return 1;
                                         return 2;
                                     }
