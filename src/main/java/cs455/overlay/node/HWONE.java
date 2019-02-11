@@ -25,10 +25,13 @@ public class HWONE{
         line[] data = new line[15];
         data[0] = new line((byte)0,(byte)1, (byte)1);
         Node root = new Node(data);
-        move(root, (byte)2);
-        System.out.println("player A: " + cnt);
-        System.out.println("player B: " + cnt2);
+
+        BreadthFirstSearch bfs = new BreadthFirstSearch(root, (byte)2);
+
+        if(bfs.compute((byte)2))
+            System.out.print("Path Found!");
     }
+
 
     private void move(Node node, byte player){
         //TODO MOVE THE KID GENERATION INTO HERE WTF;
@@ -67,6 +70,49 @@ public class HWONE{
                 move(node.children[child], player);
             }
         }
+    }
+
+    public class BreadthFirstSearch {
+
+        Node startNode;
+        Node goalNode;
+
+        public BreadthFirstSearch(Node start, int wat){
+            this.startNode = start;
+            this.goalNode = null;
+        }
+
+        public boolean compute(byte player){
+
+            if(this.startNode.equals(goalNode)){
+                System.out.println("Goal Node Found!");
+                System.out.println(startNode);
+            }
+
+            Queue<Node> queue = new LinkedList<>();
+            ArrayList<Node> explored = new ArrayList<>();
+            queue.add(this.startNode);
+            explored.add(startNode);
+
+            while(!queue.isEmpty()){
+                Node current = queue.remove();
+                if(current.equals(this.goalNode)) {
+                    System.out.println(explored);
+                    return true;
+                }
+                else{
+                    if(current.getChildren(player).isEmpty())
+                        return false;
+                    else
+                        queue.addAll(current.getChildren(player));
+                }
+                explored.add(current);
+            }
+
+            return false;
+
+        }
+
     }
 
     //CHECK FOR ENDGAME
@@ -181,6 +227,33 @@ public class HWONE{
                 }
             }
             total++;
+        }
+
+        public ArrayList<Node> getChildren(byte player){
+            ArrayList<Node> childNodes = new ArrayList<>();
+            line[] tested = this.moves.clone();
+            //cycles through all possible lines
+            for (byte v1 = 0; v1 < numVertices; v1++) {
+                for (byte v2 = 0; v2 < numVertices; v2++) {
+                    //If the move is available
+                    if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
+
+                        //adds move to history
+                        for (int x = 0; x < 15; x++) {
+                            if (tested[x] == null) {
+                                tested[x] = new line(v1, v2, player);
+                                x = 16;
+                            }
+                        }
+                        //adds the child
+                        line[] nn = this.moves.clone();
+                        nn[getNumberOfMOves(this)] = new line(v1, v2, player);
+                        notOver(new Node(nn));
+                        childNodes.add(new Node(nn));
+                    }
+                }
+            }
+            return childNodes;
         }
 
     }
