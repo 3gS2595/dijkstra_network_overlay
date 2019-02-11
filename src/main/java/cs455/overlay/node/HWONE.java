@@ -25,41 +25,13 @@ public class HWONE{
         line[] data = new line[15];
         data[0] = new line((byte)0,(byte)1, (byte)1);
         Node root = new Node(data);
-        play(root, (byte)2);
+        move(root, (byte)2);
         System.out.println("player A: " + cnt);
         System.out.println("player B: " + cnt2);
     }
 
-    private void play(Node root, byte turn){
-        if(total % 10000 == 0) {
-            System.out.println(total);
-        }
-        byte player = turn;
-        //creates the children
-        if (getNumberOfChildren(root) == 0) {
-            move(root, player);
-        }
-        if (player == 1) {
-            player = 2;
-        } else { player = 1; }
-        //creates the grandchildren
-
-        if(getNumberOfChildren(root) != 0) {
-            for (int child = 0; child < getNumberOfChildren(root); child++) {
-                play(root.children[child], player);
-            }
-        }
-    }
-
     private void move(Node node, byte player){
         //TODO MOVE THE KID GENERATION INTO HERE WTF;
-        //STILL UNDER CONSTRUCTION
-//        if(getNumberOfChildren(node) != 0) {
-//            for (int child = 0; child < getNumberOfChildren(node); child++) {
-//                move(node.children[child], player);
-//            }
-//        }
-
         line[] tested = node.moves.clone();
         //cycles through all possible lines
         for (byte v1 = 0; v1 < numVertices; v1++) {
@@ -76,14 +48,23 @@ public class HWONE{
 
                     line[] nn = node.moves.clone();
                     nn[getNumberOfMOves(node)] = new line(v1, v2, player);
-
-                    //finds any complete games
-                    if (!(notOver(new Node(nn)) == 0)) {
-                        node = null;
-                        return;
-                    }
                     node.addChild(new Node(nn));
                 }
+            }
+        }
+        //
+        if (player == 1) {
+            player = 2;
+        } else { player = 1; }
+        //finds any complete games
+        for(int child = 0; child < getNumberOfChildren(node); child++) {
+            int ret = (notOver(node.children[child]));
+            if (ret == 2) {
+                node = null;
+            } else if (ret == 1) {
+                child = 100;
+            } else {
+                move(node.children[child], player);
             }
         }
     }
@@ -108,7 +89,6 @@ public class HWONE{
                                         cnt++;
                                         System.out.println("1 " + node.ts());
                                         return 1;
-                                        //System.out.println("1");
                                     }
                                     if (node.moves[vect1].getColor() == 2) {
                                         cnt2++;
@@ -216,9 +196,11 @@ public class HWONE{
 
     private int getNumberOfChildren(Node node){
         int count = 0;
-        for (int x = 0; x < 15; x++) {
-            if (node.children[x] != null) {
-                count++;
+        if(node != null) {
+            for (int x = 0; x < 15; x++) {
+                if (node.children[x] != null) {
+                    count++;
+                }
             }
         }
         return count;
