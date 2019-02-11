@@ -27,11 +27,13 @@ public class HWONE{
 
         //game control input
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Search for winning strategy for player A, B, or neither(C)");
+        System.out.println("ENTER YOUR DESIRED QUALITIES");
+        System.out.print("Search for winning strategy for player A, B, or neither(C): ");
         String answer = String.valueOf(scanner.next().charAt(0));
         System.out.println();
-        System.out.println("Negate winning condition? Y(yes) or N(no)");
+        System.out.print("Negate winning condition? Y(yes) or N(no): ");
         String firstPlay = String.valueOf(scanner.next().charAt(0));
+        System.out.println();
         if(firstPlay.toUpperCase().equals("Y"))
             negate = 1;
         if(firstPlay.toUpperCase().equals("N"))
@@ -44,14 +46,11 @@ public class HWONE{
         }
         if(answer.toUpperCase().equals("B")){
             desiredPlayer = 2;
-            System.out.println("Youve selected B, this one might take a while but if your memory permits\n" +
-                "I should beable to find you your answer");
+            System.out.println("I'll need to search through roughly 5,110,000 options to get your answer)");
         }
         if(answer.toUpperCase().equals("C")){
             desiredPlayer = 3;
-            System.out.println("Youve selected C, this one might take a while but if your memory permits\n" +
-                "I should beable to find you your answer");
-            System.out.println("I'll need to search through roughly 5,110,000 options to get your answer)");
+            System.out.println("I'll need to search through roughly 7,090,000 options to get your answer)");
         }
         System.out.println();
         System.out.println("Searching for " + answer.toUpperCase() +"'s winning strategy");
@@ -177,7 +176,9 @@ public class HWONE{
                     desiredPlayer = 2;
                 else desiredPlayer = 1;
             }
-
+            if(negated == 1){
+                desiredPlayer = tested[getNumberOfMOves(this)-1].getColor();
+            }
             //B will obstruct A
             //or if "negated" B will help A
             if(tested[getNumberOfMOves(this)-1].getColor() == desiredPlayer) {
