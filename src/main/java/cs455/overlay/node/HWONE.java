@@ -1,5 +1,4 @@
 package cs455.overlay.node;
-
 import java.util.*;
 
 
@@ -26,8 +25,33 @@ public class HWONE{
         data[0] = new line((byte)0,(byte)1, (byte)1);
         Node root = new Node(data, (byte) 2);
 
-        BreadthFirstSearch bfs = new BreadthFirstSearch(root, 1);
+        int desiredPlayer = 0;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Would you like to see if play A or B can win? or both(C)");
+        String answer = String.valueOf(scanner.next().charAt(0));
+        if(answer.toUpperCase().equals("A")){
+            desiredPlayer =1;
+        }
+        if(answer.toUpperCase().equals("B")){
+            desiredPlayer =2;
+            System.out.println("Youve selected B, this one might take a while but if your memory permits\n I should beable to find you an answer");
+        }
+        if(answer.toUpperCase().equals("C")){
+            System.out.println("Youve selected C, this one might take a while but if your memory permits\n I should beable to find you an answer");
+        }
+        System.out.println();
+        System.out.println("Searching for " + answer.toUpperCase() +"'s winning strategy");
+
+        if(answer.toUpperCase() == "C"){
+            BreadthFirstSearch bfs = new BreadthFirstSearch(root, 1);
+            bfs.compute();
+            bfs = new BreadthFirstSearch(root, 2);
+            bfs.compute();
+        }
+        BreadthFirstSearch bfs = new BreadthFirstSearch(root, desiredPlayer);
         bfs.compute();
+
+
     }
 
     //BFS MECHANISM, CALLS CHILD NODE GENERATOR IN NODE CLASS
@@ -48,32 +72,35 @@ public class HWONE{
 
         public boolean compute(){
 
-            if(notOver(startNode) == desiredPlayer){
-                System.out.println("Goal Node Found!");
-                //System.out.println(startNode);
-                System.exit(1);
-            }
-
             Queue<Node> queue = new LinkedList<>();
             ArrayList<Node> explored = new ArrayList<>();
             queue.add(this.startNode);
             explored.add(startNode);
 
             while(!queue.isEmpty()){
+
+                if(total % 10000 == 0) {
+                    System.out.println("    I've looked at " + total + " options so far");
+                }
                 Node current = queue.remove();
                 if(notOver(current) == desiredPlayer) {
-                	System.out.println();
-                	System.out.println(current.ts());
-                    System.out.println("Goal Node Found!");
+                    char res = ' ';
+                    if(desiredPlayer == 1)
+                        res = 'A';
+                    if(desiredPlayer == 2)
+                        res = 'B';
+                    System.out.println();
+                    System.out.println(current.ts());
+                    System.out.println("This is the winning strategy for player " + res);
                     //System.out.println(explored);
-					System.exit(1);
+                    System.exit(1);
                 }
                 else{
                     int skip = 0;
                     ArrayList<Node> move = current.getChildren(desiredPlayer);
                     for(int i = 0; i < move.size(); i++){
-                       if(notOver(move.get(i)) == notWanted)
-                           skip = 1;
+                        if(notOver(move.get(i)) == notWanted)
+                            skip = 1;
                     }
                     if(skip == 0)
                         queue.addAll(move);
@@ -111,13 +138,13 @@ public class HWONE{
         }
 
         //CREATES ALL THE NODE KIDDIES! :D
-        public ArrayList<Node> getChildren(byte player){
+        public ArrayList<Node> getChildren(byte desPlayer){
             ArrayList<Node> childNodes = new ArrayList<>();
             line[] tested = this.moves.clone();
             line[] nn = this.moves.clone();
-            byte desiredPlayer = (byte)player;
+            byte desiredPlayer = desPlayer;
             byte notWanted;
-            if(player == 1)
+            if(desiredPlayer == 1)
                 notWanted = (byte)2;
             else notWanted = (byte)1;
             int BStoppedA = 0;
@@ -134,6 +161,7 @@ public class HWONE{
                                 temp = new Node(nn, notWanted);
                                 childNodes.add(new Node(temp.moves, notWanted));
                                 BStoppedA = 1;
+                                total++;
                             }
                         }
                     }
@@ -145,7 +173,7 @@ public class HWONE{
                     for (byte v2 = 0; v2 < numVertices; v2++) {
 
                         //If the move is available
-                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, desiredPlayer))))) {
+                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte)1))))) {
 
                             //adds move to history
                             for (int x = 0; x < 15; x++) {
@@ -164,7 +192,7 @@ public class HWONE{
                             nn = this.moves.clone();
                             nn[getNumberOfMOves(this)] = new line(v1, v2, player);
                             childNodes.add(new Node(nn, newTurn));
-                            System.out.println((new Node(nn, newTurn).ts()));
+                            total++;
                         }
                     }
                 }
@@ -231,9 +259,12 @@ public class HWONE{
                         if(vect1 != vect2 && vect2 != vect3 && vect3 != vect1) {
                             if ((node.moves[vect1].getColor() == node.moves[vect3].getColor())) {
 
+                                //If this string is comprised of 3 pairs of three unique digits
+                                //than damn done just ropped ourselves a triangle yeeha
                                 String connects = Byte.toString(node.moves[vect1].v1) + Byte.toString(node.moves[vect1].v2)
                                     + Byte.toString(node.moves[vect2].v1) + Byte.toString(node.moves[vect2].v2)
                                     + Byte.toString(node.moves[vect3].v1) + Byte.toString(node.moves[vect3].v2);
+
                                 if (connects.chars().distinct().count() == 3) {
                                     //System.out.println(connects);
                                     if (node.moves[vect1].getColor() == 1) {
