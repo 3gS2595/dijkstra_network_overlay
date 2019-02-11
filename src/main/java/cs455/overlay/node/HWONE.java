@@ -1,4 +1,3 @@
-package cs455.overlay.node;
 
 import java.util.*;
 
@@ -45,7 +44,7 @@ public class HWONE{
 
             if(notOver(startNode) == 1){
                 System.out.println("Goal Node Found!");
-                System.out.println(startNode);
+                //System.out.println(startNode);
                 System.exit(1);
             }
 
@@ -56,9 +55,12 @@ public class HWONE{
 
             while(!queue.isEmpty()){
                 Node current = queue.remove();
-                if(current.equals(this.goalNode)) {
-                    System.out.println(explored);
-                    return true;
+                if(notOver(current) == 1) {
+                	System.out.println();
+                	System.out.println(current.ts());
+                    System.out.println("Goal Node Found!");
+                    //System.out.println(explored);
+					System.exit(1);
                 }
                 else{
                     int skip = 0;
@@ -79,9 +81,43 @@ public class HWONE{
 
     }
 
+	//CHECK FOR ENDGAME
+    private byte notOver1(Node node){
+        for (int vect1 = 0; vect1 < getNumberOfMOves(node); vect1++) {
+            for (int vect2 = 0; vect2 < getNumberOfMOves(node); vect2++) {
+                if((node.moves[vect1].getColor() == node.moves[vect2].getColor())){
+                    //if two connecting lineS are found it looks for a third
+                    for (int vect3 = 0; vect3 < getNumberOfMOves(node); vect3++) {
+                        //if not overlapping with other loops
+                        if(vect1 != vect2 && vect2 != vect3 && vect3 != vect1) {
+                            if ((node.moves[vect1].getColor() == node.moves[vect3].getColor())) {
+
+                                String connects = Byte.toString(node.moves[vect1].v1) + Byte.toString(node.moves[vect1].v2)
+                                    + Byte.toString(node.moves[vect2].v1) + Byte.toString(node.moves[vect2].v2)
+                                    + Byte.toString(node.moves[vect3].v1) + Byte.toString(node.moves[vect3].v2);
+                                if (connects.chars().distinct().count() == 3) {
+                                    if (node.moves[vect1].getColor() == 1) {
+                                        cnt++;
+                                        //System.out.println("1 " + node.ts());
+                                        return 1;
+                                    }
+                                    if (node.moves[vect1].getColor() == 2) {
+                                        cnt2++;
+                                        //System.out.println("2 " + node.ts());
+                                        return 2;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
     //CHECK FOR ENDGAME
     private byte notOver(Node node){
-        System.out.println("1 " + node.ts());
         for (int vect1 = 0; vect1 < getNumberOfMOves(node); vect1++) {
             for (int vect2 = 0; vect2 < getNumberOfMOves(node); vect2++) {
                 if((node.moves[vect1].getColor() == node.moves[vect2].getColor())){
@@ -195,12 +231,14 @@ public class HWONE{
             if(this.player == 1) {
                 for (byte v1 = 0; v1 < numVertices; v1++) {
                     for (byte v2 = 0; v2 < numVertices; v2++) {
+                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
                         line[] nn = this.moves.clone();
                         nn[getNumberOfMOves(this)] = new line(v1, v2, player);
-                        if (notOver(new Node(nn, (byte) 1)) == 1) {
+                        if (notOver1(new Node(nn, (byte) 1)) == 1) {
                             childNodes.add(new Node(nn, (byte) 2));
                             stoppedA = 1;
                         }
+                    }
                     }
                 }
             }
