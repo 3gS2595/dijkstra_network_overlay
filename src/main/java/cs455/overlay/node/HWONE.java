@@ -26,24 +26,29 @@ public class HWONE{
         data[0] = new line((byte)0,(byte)1, (byte)1);
         Node root = new Node(data, (byte) 2);
 
-        BreadthFirstSearch bfs = new BreadthFirstSearch(root);
-
-        if(bfs.compute())
-            System.out.print("Path Found!");
+        BreadthFirstSearch bfs = new BreadthFirstSearch(root, 1);
+        bfs.compute();
     }
 
+    //BFS MECHANISM, CALLS CHILD NODE GENERATOR IN NODE CLASS
     public class BreadthFirstSearch {
         Node startNode;
         Node goalNode;
+        byte desiredPlayer;
+        byte notWanted;
 
-        public BreadthFirstSearch(Node start){
+        public BreadthFirstSearch(Node start, int player){
             this.startNode = start;
             this.goalNode = null;
+            this.desiredPlayer = (byte)player;
+            if(player == 1)
+                notWanted = (byte)2;
+            else notWanted = (byte)1;
         }
 
         public boolean compute(){
 
-            if(notOver(startNode) == 1){
+            if(notOver(startNode) == desiredPlayer){
                 System.out.println("Goal Node Found!");
                 //System.out.println(startNode);
                 System.exit(1);
@@ -56,7 +61,7 @@ public class HWONE{
 
             while(!queue.isEmpty()){
                 Node current = queue.remove();
-                if(notOver(current) == 1) {
+                if(notOver(current) == desiredPlayer) {
                 	System.out.println();
                 	System.out.println(current.ts());
                     System.out.println("Goal Node Found!");
@@ -65,9 +70,9 @@ public class HWONE{
                 }
                 else{
                     int skip = 0;
-                    ArrayList<Node> move = current.getChildren();
+                    ArrayList<Node> move = current.getChildren(desiredPlayer);
                     for(int i = 0; i < move.size(); i++){
-                       if(notOver(move.get(i)) == 2)
+                       if(notOver(move.get(i)) == notWanted)
                            skip = 1;
                     }
                     if(skip == 0)
@@ -82,40 +87,90 @@ public class HWONE{
 
     }
 
-    //CHECK FOR ENDGAME
-    private byte notOver(Node node){
-        for (int vect1 = 0; vect1 < getNumberOfMOves(node); vect1++) {
-            for (int vect2 = 0; vect2 < getNumberOfMOves(node); vect2++) {
-                if((node.moves[vect1].getColor() == node.moves[vect2].getColor())){
-                    //if two connecting lineS are found it looks for a third
-                    for (int vect3 = 0; vect3 < getNumberOfMOves(node); vect3++) {
-                        //if not overlapping with other loops
-                        if(vect1 != vect2 && vect2 != vect3 && vect3 != vect1) {
-                            if ((node.moves[vect1].getColor() == node.moves[vect3].getColor())) {
+    //GAMEBOARD (AND CHILDREN)
+    private class Node{
+        line[] moves = new line[15];
+        Node[] children = new Node[15];
+        byte player;
 
-                                String connects = Byte.toString(node.moves[vect1].v1) + Byte.toString(node.moves[vect1].v2)
-                                    + Byte.toString(node.moves[vect2].v1) + Byte.toString(node.moves[vect2].v2)
-                                    + Byte.toString(node.moves[vect3].v1) + Byte.toString(node.moves[vect3].v2);
-                                if (connects.chars().distinct().count() == 3) {
-                                    //System.out.println(connects);
-                                    if (node.moves[vect1].getColor() == 1) {
-                                        cnt++;
-                                        //System.out.println("1 " + node.ts());
-                                        return 1;
-                                    }
-                                    if (node.moves[vect1].getColor() == 2) {
-                                        cnt2++;
-                                        //System.out.println("2 " + node.ts());
-                                        return 2;
-                                    }
-                                }
+        //CONSTRUCTOR
+        private Node(line[] moves, byte player){
+            this.moves = moves.clone();
+            this.player = player;
+        }
+
+        //TO STRING METHOD
+        private String ts(){
+            String string = "";
+            for (int x = 0; x < 15; x++){
+                if(this.moves[x] != null) {
+                    string += this.moves[x].ts();
+                }
+            }
+            return string;
+        }
+
+        //CREATES ALL THE NODE KIDDIES! :D
+        public ArrayList<Node> getChildren(byte player){
+            ArrayList<Node> childNodes = new ArrayList<>();
+            line[] tested = this.moves.clone();
+            line[] nn = this.moves.clone();
+            byte desiredPlayer = (byte)player;
+            byte notWanted;
+            if(player == 1)
+                notWanted = (byte)2;
+            else notWanted = (byte)1;
+            int BStoppedA = 0;
+
+            //B will obstruct A
+            if(tested[getNumberOfMOves(this)-1].getColor() == desiredPlayer) {
+                for (byte v1 = 0; v1 < numVertices; v1++) {
+                    for (byte v2 = 0; v2 < numVertices; v2++) {
+                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, desiredPlayer))))) {
+                            nn[getNumberOfMOves(this)] = new line(v1, v2, desiredPlayer);
+                            Node temp = new Node(nn, desiredPlayer);
+                            if (notOver(temp) == desiredPlayer) {
+                                nn[getNumberOfMOves(this)] = new line(v1, v2, notWanted);
+                                temp = new Node(nn, notWanted);
+                                childNodes.add(new Node(temp.moves, notWanted));
+                                BStoppedA = 1;
                             }
                         }
                     }
                 }
             }
+            if(BStoppedA == 0){
+                //cycles through all possible lines
+                for (byte v1 = 0; v1 < numVertices; v1++) {
+                    for (byte v2 = 0; v2 < numVertices; v2++) {
+
+                        //If the move is available
+                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, desiredPlayer))))) {
+
+                            //adds move to history
+                            for (int x = 0; x < 15; x++) {
+                                if (tested[x] == null) {
+                                    tested[x] = new line(v1, v2, player);
+                                    x = 16;
+                                }
+                            }
+                            byte newTurn;
+                            if (this.player == 1) {
+                                newTurn = 2;
+                            } else {
+                                newTurn = 1;
+                            }
+                            //adds the child
+                            nn = this.moves.clone();
+                            nn[getNumberOfMOves(this)] = new line(v1, v2, player);
+                            childNodes.add(new Node(nn, newTurn));
+                            System.out.println((new Node(nn, newTurn).ts()));
+                        }
+                    }
+                }
+            }
+            return childNodes;
         }
-        return 0;
     }
 
     //SINGLE MOVE
@@ -165,90 +220,43 @@ public class HWONE{
         }
     }
 
-    //GAMEBOARD (AND CHILDREN)
-    private class Node{
+    //CHECK FOR ENDGAME
+    private byte notOver(Node node){
+        for (int vect1 = 0; vect1 < getNumberOfMOves(node); vect1++) {
+            for (int vect2 = 0; vect2 < getNumberOfMOves(node); vect2++) {
+                if((node.moves[vect1].getColor() == node.moves[vect2].getColor())){
+                    //if two connecting lineS are found it looks for a third
+                    for (int vect3 = 0; vect3 < getNumberOfMOves(node); vect3++) {
+                        //if not overlapping with other loops
+                        if(vect1 != vect2 && vect2 != vect3 && vect3 != vect1) {
+                            if ((node.moves[vect1].getColor() == node.moves[vect3].getColor())) {
 
-        line[] moves = new line[15];
-        Node[] children = new Node[15];
-        byte player;
-
-        //CONSTRUCTOR
-        private Node(line[] moves, byte player){
-            this.moves = moves.clone();
-            this.player = player;
-        }
-
-        private String ts(){
-            String string = "";
-            for (int x = 0; x < 15; x++){
-                if(this.moves[x] != null) {
-                    string += this.moves[x].ts();
-                }
-            }
-            return string;
-        }
-
-
-        //B will obstruct A
-        public ArrayList<Node> getChildren(){
-            ArrayList<Node> childNodes = new ArrayList<>();
-            line[] tested = this.moves.clone();
-            line[] nn = this.moves.clone();
-            int stoppedA = 0;
-            if(tested[getNumberOfMOves(this)-1].getColor() == 1) {
-                for (byte v1 = 0; v1 < numVertices; v1++) {
-                    for (byte v2 = 0; v2 < numVertices; v2++) {
-                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
-                        nn[getNumberOfMOves(this)] = new line(v1, v2, (byte)1);
-                        Node temp = new Node(nn, (byte)1);
-                        if (notOver(temp) == 1) {
-                            nn[getNumberOfMOves(this)] = new line(v1, v2, (byte)2);
-                            temp = new Node(nn, (byte)2);
-                            childNodes.add(new Node(temp.moves, (byte) 2));
-                            stoppedA = 1;
-                        }
-                    }
-                    }
-                }
-            }
-            if(stoppedA == 0){
-                //cycles through all possible lines
-                for (byte v1 = 0; v1 < numVertices; v1++) {
-                    for (byte v2 = 0; v2 < numVertices; v2++) {
-
-                        //if B is making this move
-
-                        //If the move is available
-                        if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
-
-
-                            //adds move to history
-                            for (int x = 0; x < 15; x++) {
-                                if (tested[x] == null) {
-                                    tested[x] = new line(v1, v2, player);
-                                    x = 16;
+                                String connects = Byte.toString(node.moves[vect1].v1) + Byte.toString(node.moves[vect1].v2)
+                                    + Byte.toString(node.moves[vect2].v1) + Byte.toString(node.moves[vect2].v2)
+                                    + Byte.toString(node.moves[vect3].v1) + Byte.toString(node.moves[vect3].v2);
+                                if (connects.chars().distinct().count() == 3) {
+                                    //System.out.println(connects);
+                                    if (node.moves[vect1].getColor() == 1) {
+                                        cnt++;
+                                        //System.out.println("1 " + node.ts());
+                                        return 1;
+                                    }
+                                    if (node.moves[vect1].getColor() == 2) {
+                                        cnt2++;
+                                        //System.out.println("2 " + node.ts());
+                                        return 2;
+                                    }
                                 }
                             }
-                            byte newTurn;
-                            if (this.player == 1) {
-                                newTurn = 2;
-                            } else {
-                                newTurn = 1;
-                            }
-                            //adds the child
-                            nn = this.moves.clone();
-                            nn[getNumberOfMOves(this)] = new line(v1, v2, player);
-                            childNodes.add(new Node(nn, newTurn));
-                            System.out.println((new Node(nn, newTurn).ts()));
-
                         }
                     }
                 }
             }
-            return childNodes;
         }
+        return 0;
     }
 
+    //GETS # OF CURRENT MOVES IN A NODES BOARD
     private int getNumberOfMOves(Node node){
         int count = 0;
         for (int x = 0; x < 15; x++) {
