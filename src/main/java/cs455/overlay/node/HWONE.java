@@ -27,27 +27,24 @@ public class HWONE{
 
         int desiredPlayer = 0;
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Would you like to see if play A or B can win? or both(C)");
+        System.out.println("Would you like to see if player A or B can win? or neither(C)");
         String answer = String.valueOf(scanner.next().charAt(0));
         if(answer.toUpperCase().equals("A")){
             desiredPlayer =1;
         }
         if(answer.toUpperCase().equals("B")){
             desiredPlayer =2;
-            System.out.println("Youve selected B, this one might take a while but if your memory permits\n I should beable to find you an answer");
+            System.out.println("Youve selected B, this one might take a while but if your memory permits\n" +
+                "I should beable to find you your answer");
         }
         if(answer.toUpperCase().equals("C")){
-            System.out.println("Youve selected C, this one might take a while but if your memory permits\n I should beable to find you an answer");
+            desiredPlayer =2;
+            System.out.println("Youve selected C, this one might take a while but if your memory permits\n" +
+                "I should beable to find you your answer");
         }
         System.out.println();
         System.out.println("Searching for " + answer.toUpperCase() +"'s winning strategy");
 
-        if(answer.toUpperCase() == "C"){
-            BreadthFirstSearch bfs = new BreadthFirstSearch(root, 1);
-            bfs.compute();
-            bfs = new BreadthFirstSearch(root, 2);
-            bfs.compute();
-        }
         BreadthFirstSearch bfs = new BreadthFirstSearch(root, desiredPlayer);
         bfs.compute();
 
@@ -73,10 +70,8 @@ public class HWONE{
         public boolean compute(){
 
             Queue<Node> queue = new LinkedList<>();
-            ArrayList<Node> explored = new ArrayList<>();
             queue.add(this.startNode);
-            explored.add(startNode);
-
+            System.out.println("(My counting isnt perfect but I promise im working)");
             while(!queue.isEmpty()){
 
                 if(total % 10000 == 0) {
@@ -89,25 +84,35 @@ public class HWONE{
                         res = 'A';
                     if(desiredPlayer == 2)
                         res = 'B';
-                    System.out.println();
-                    System.out.println(current.ts());
+
                     System.out.println("This is the winning strategy for player " + res);
-                    //System.out.println(explored);
+                    System.out.println(current.ts());
+                    System.out.println();
                     System.exit(1);
                 }
                 else{
                     int skip = 0;
                     ArrayList<Node> move = current.getChildren(desiredPlayer);
                     for(int i = 0; i < move.size(); i++){
-                        if(notOver(move.get(i)) == notWanted)
-                            skip = 1;
-                    }
-                    if(skip == 0)
-                        queue.addAll(move);
-                }{}
-                explored.add(current);
-            }
 
+                        //for neither
+                        if(desiredPlayer == 3) {
+                            if (notOver(move.get(i)) != 0) {
+                                skip = 1;
+                            }
+                        }else {
+                            //for a or b
+                            if (notOver(move.get(i)) == notWanted) {
+                                skip = 1;
+                            }
+                        }
+                    }
+                    if(skip == 0) {
+                        queue.addAll(move);
+                    }
+                }{}
+            }
+            System.out.println("There was not a single instance that what you asked for occured");
             return false;
 
         }
@@ -148,6 +153,14 @@ public class HWONE{
                 notWanted = (byte)2;
             else notWanted = (byte)1;
             int BStoppedA = 0;
+
+            //sets to oppose pervious player if desired player set to neither
+            if(desiredPlayer == 3) {
+                notWanted = tested[getNumberOfMOves(this) - 1].getColor();
+                if (notWanted == 1)
+                    desiredPlayer = 2;
+                else desiredPlayer = 1;
+            }
 
             //B will obstruct A
             if(tested[getNumberOfMOves(this)-1].getColor() == desiredPlayer) {
