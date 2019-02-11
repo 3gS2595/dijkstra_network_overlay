@@ -1,3 +1,4 @@
+package cs455.overlay.node;
 
 import java.util.*;
 
@@ -81,8 +82,8 @@ public class HWONE{
 
     }
 
-	//CHECK FOR ENDGAME
-    private byte notOver1(Node node){
+    //CHECK FOR ENDGAME
+    private byte notOver(Node node){
         for (int vect1 = 0; vect1 < getNumberOfMOves(node); vect1++) {
             for (int vect2 = 0; vect2 < getNumberOfMOves(node); vect2++) {
                 if((node.moves[vect1].getColor() == node.moves[vect2].getColor())){
@@ -96,6 +97,7 @@ public class HWONE{
                                     + Byte.toString(node.moves[vect2].v1) + Byte.toString(node.moves[vect2].v2)
                                     + Byte.toString(node.moves[vect3].v1) + Byte.toString(node.moves[vect3].v2);
                                 if (connects.chars().distinct().count() == 3) {
+                                    //System.out.println(connects);
                                     if (node.moves[vect1].getColor() == 1) {
                                         cnt++;
                                         //System.out.println("1 " + node.ts());
@@ -116,47 +118,11 @@ public class HWONE{
         return 0;
     }
 
-    //CHECK FOR ENDGAME
-    private byte notOver(Node node){
-        for (int vect1 = 0; vect1 < getNumberOfMOves(node); vect1++) {
-            for (int vect2 = 0; vect2 < getNumberOfMOves(node); vect2++) {
-                if((node.moves[vect1].getColor() == node.moves[vect2].getColor())){
-                    //if two connecting lineS are found it looks for a third
-                    for (int vect3 = 0; vect3 < getNumberOfMOves(node); vect3++) {
-                        //if not overlapping with other loops
-                        if(vect1 != vect2 && vect2 != vect3 && vect3 != vect1) {
-                            if ((node.moves[vect1].getColor() == node.moves[vect3].getColor())) {
-
-                                String connects = Byte.toString(node.moves[vect1].v1) + Byte.toString(node.moves[vect1].v2)
-                                    + Byte.toString(node.moves[vect2].v1) + Byte.toString(node.moves[vect2].v2)
-                                    + Byte.toString(node.moves[vect3].v1) + Byte.toString(node.moves[vect3].v2);
-                                if (connects.chars().distinct().count() == 3) {
-                                    //System.out.println(connects);
-                                    if (node.moves[vect1].getColor() == 1) {
-                                        cnt++;
-                                        System.out.println("1 " + node.ts());
-                                        return 1;
-                                    }
-                                    if (node.moves[vect1].getColor() == 2) {
-                                        cnt2++;
-                                        System.out.println("2 " + node.ts());
-                                        return 2;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return 0;
-    }
-
     //SINGLE MOVE
     private class line{
         private byte v1; //first vertex
         private byte v2; //second vertex
-        private byte color; //0(null), 1(blue), or 2(red)
+        private byte color = (byte)0; //0(null), 1(blue), or 2(red)
 
         private line(byte v1, byte v2, byte color) {
             this.v1 = v1;
@@ -227,15 +193,18 @@ public class HWONE{
         public ArrayList<Node> getChildren(){
             ArrayList<Node> childNodes = new ArrayList<>();
             line[] tested = this.moves.clone();
+            line[] nn = this.moves.clone();
             int stoppedA = 0;
-            if(this.player == 1) {
+            if(tested[getNumberOfMOves(this)-1].getColor() == 1) {
                 for (byte v1 = 0; v1 < numVertices; v1++) {
                     for (byte v2 = 0; v2 < numVertices; v2++) {
                         if ((v1 != v2) && (!contains(tested, (new line(v1, v2, (byte) 1))))) {
-                        line[] nn = this.moves.clone();
-                        nn[getNumberOfMOves(this)] = new line(v1, v2, player);
-                        if (notOver1(new Node(nn, (byte) 1)) == 1) {
-                            childNodes.add(new Node(nn, (byte) 2));
+                        nn[getNumberOfMOves(this)] = new line(v1, v2, (byte)1);
+                        Node temp = new Node(nn, (byte)1);
+                        if (notOver(temp) == 1) {
+                            nn[getNumberOfMOves(this)] = new line(v1, v2, (byte)2);
+                            temp = new Node(nn, (byte)2);
+                            childNodes.add(new Node(temp.moves, (byte) 2));
                             stoppedA = 1;
                         }
                     }
@@ -267,9 +236,10 @@ public class HWONE{
                                 newTurn = 1;
                             }
                             //adds the child
-                            line[] nn = this.moves.clone();
+                            nn = this.moves.clone();
                             nn[getNumberOfMOves(this)] = new line(v1, v2, player);
                             childNodes.add(new Node(nn, newTurn));
+                            System.out.println((new Node(nn, newTurn).ts()));
 
                         }
                     }
