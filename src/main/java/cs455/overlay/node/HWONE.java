@@ -7,6 +7,7 @@ public class HWONE{
     static int total = 0;
     int cnt = 0;
     int cnt2 = 0;
+    int negated = 0;
 
     public static void main(String[] args) {
         if (args.length == 1)
@@ -21,31 +22,45 @@ public class HWONE{
     }
 
     private void run(){
-        line[] data = new line[15];
-        data[0] = new line((byte)0,(byte)1, (byte)1);
-        Node root = new Node(data, (byte) 2);
-
         int desiredPlayer = 0;
+        int negate = 0;
+
+        //game control input
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Would you like to see if player A or B can win? or neither(C)");
+        System.out.println("Search for winning strategy for player A, B, or neither(C)");
         String answer = String.valueOf(scanner.next().charAt(0));
+        System.out.println();
+        System.out.println("Negate winning condition? Y(yes) or N(no)");
+        String firstPlay = String.valueOf(scanner.next().charAt(0));
+        if(firstPlay.toUpperCase().equals("Y"))
+            negate = 0;
+        if(firstPlay.toUpperCase().equals("N"))
+            negate = 1;
+
+        //creates desired search
         if(answer.toUpperCase().equals("A")){
-            desiredPlayer =1;
+            desiredPlayer = 1;
+            System.out.println("I'll need to search through roughly 1,210,000 options to get your answer)");
         }
         if(answer.toUpperCase().equals("B")){
-            desiredPlayer =2;
+            desiredPlayer = 2;
             System.out.println("Youve selected B, this one might take a while but if your memory permits\n" +
                 "I should beable to find you your answer");
         }
         if(answer.toUpperCase().equals("C")){
-            desiredPlayer =2;
+            desiredPlayer = 3;
             System.out.println("Youve selected C, this one might take a while but if your memory permits\n" +
                 "I should beable to find you your answer");
+            System.out.println("I'll need to search through roughly 5,110,000 options to get your answer)");
         }
         System.out.println();
         System.out.println("Searching for " + answer.toUpperCase() +"'s winning strategy");
 
-        BreadthFirstSearch bfs = new BreadthFirstSearch(root, desiredPlayer);
+
+        line[] data = new line[15];
+        data[0] = new line((byte)0,(byte)1, (byte)1);
+        Node root = new Node(data, (byte)1);
+        BreadthFirstSearch bfs = new BreadthFirstSearch(root, desiredPlayer, negate);
         bfs.compute();
 
 
@@ -57,11 +72,13 @@ public class HWONE{
         Node goalNode;
         byte desiredPlayer;
         byte notWanted;
+        int negate;
 
-        public BreadthFirstSearch(Node start, int player){
+        public BreadthFirstSearch(Node start, int player, int negate){
             this.startNode = start;
             this.goalNode = null;
             this.desiredPlayer = (byte)player;
+            negated = negate;
             if(player == 1)
                 notWanted = (byte)2;
             else notWanted = (byte)1;
@@ -71,11 +88,10 @@ public class HWONE{
 
             Queue<Node> queue = new LinkedList<>();
             queue.add(this.startNode);
-            System.out.println("(My counting isnt perfect but I promise im working)");
             while(!queue.isEmpty()){
 
                 if(total % 10000 == 0) {
-                    System.out.println("    I've looked at " + total + " options so far");
+                    System.out.println("    I've looked at around " + total + " options so far");
                 }
                 Node current = queue.remove();
                 if(notOver(current) == desiredPlayer) {
@@ -112,7 +128,7 @@ public class HWONE{
                     }
                 }{}
             }
-            System.out.println("There was not a single instance that what you asked for occured");
+            System.out.println("There was not a single instance of what you asked for occuring");
             return false;
 
         }
@@ -283,11 +299,15 @@ public class HWONE{
                                     if (node.moves[vect1].getColor() == 1) {
                                         cnt++;
                                         //System.out.println("1 " + node.ts());
+                                        if(negated == 1)
+                                            return 2;
                                         return 1;
                                     }
                                     if (node.moves[vect1].getColor() == 2) {
                                         cnt2++;
                                         //System.out.println("2 " + node.ts());
+                                        if(negated == 1)
+                                            return 1;
                                         return 2;
                                     }
                                 }
