@@ -178,6 +178,9 @@ public class HWONE{
             }
             if(negated == 1){
                 desiredPlayer = tested[getNumberOfMOves(this)-1].getColor();
+                if(desiredPlayer == 1)
+                    notWanted = 2;
+                else notWanted = 1;
             }
             //B will obstruct A
             //or if "negated" B will help A
