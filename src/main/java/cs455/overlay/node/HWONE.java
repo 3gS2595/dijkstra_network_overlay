@@ -62,15 +62,13 @@ public class HWONE{
                     return true;
                 }
                 else{
+                    int skip = 0;
                     ArrayList<Node> move = current.getChildren();
                     for(int i = 0; i < move.size(); i++){
-                        if(notOver(move.get(i)) == 2) {
-                            return false;
-                        }
+                       if(notOver(move.get(i)) != 0)
+                           skip = 1;
                     }
-                    if(move.isEmpty())
-                        return false;
-                    else
+                    if(skip == 0)
                         queue.addAll(move);
                 }{}
                 explored.add(current);
