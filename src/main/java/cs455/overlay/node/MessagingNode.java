@@ -1,6 +1,7 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.*;
+import cs455.overlay.wireformats.Deregister_Request;
 
 import java.io.*;
 import java.net.*;
@@ -10,6 +11,7 @@ public class MessagingNode implements Node{
 
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
+    private Thread serverThread;
 
     //Registry's network information
     private String  REGISTRY_HOST;
@@ -31,8 +33,8 @@ public class MessagingNode implements Node{
             this.NODE_PORT = Node.acquirePORT();
 
             //create/initialize server thread
-            Thread newServerThread = new Thread(new TCPServerThread(NODE_PORT, this));
-            newServerThread.start();
+            serverThread = new Thread(new TCPServerThread(NODE_PORT, this));
+            serverThread.start();
 
             if (debug) {
                 System.out.println("INITIALIZED MESSENGER NODE\n" +
@@ -40,24 +42,36 @@ public class MessagingNode implements Node{
                     "NODE_PORT: " + NODE_PORT + "\n");
             }
 
-            //USER COMMAND INPUT
-            while(true){
-                Scanner scanner = new Scanner(System.in);
-                String in = scanner.nextLine();
-                switch (in) {
-                    case "print-shortest-path":
-                        System.out.println("tat");
-                        break;
-                    case "exit-overlay":
-                        System.out.println("tat");
-                        break;
-                    default:
-                        System.out.println("command not recognized");
-                        break;
-                }
-                scanner.close();
-            }
+        } catch (IOException e){
+            System.out.println("Registry::failed_starting_server_thread:: " + e);
+            System.exit(1);
+        }
+    }
 
+    //USER INPUT
+    private static void userInput(MessagingNode node){
+        //USER COMMAND INPUT
+        Scanner scanner = new Scanner(System.in);
+        while(true){
+            String in = scanner.nextLine();
+            switch (in) {
+                case "print-shortest-path":
+                    System.out.println("tat");
+                    break;
+                case "exit-overlay":
+                    node.terminateNode();
+                    break;
+                default:
+                    System.out.println("command not recognized");
+                    break;
+            }
+        }
+    }
+
+    private void terminateNode(){
+        try {
+            new Deregister_Request(this);
+            this.serverThread.interrupt();
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
@@ -77,8 +91,11 @@ public class MessagingNode implements Node{
     //Second Arg = registry's port number
     //Reroutes arguments to MessagingNode's Constructor
     public static void main(String[] args){
-        if(args.length != 2)
+        if(args.length != 2) {
             System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
-        else new MessagingNode(args[0], Integer.parseInt(args[1]));
+            return;
+        }
+        MessagingNode thisNode = new MessagingNode(args[0], Integer.parseInt(args[1]));
+        userInput(thisNode);
     }
 }

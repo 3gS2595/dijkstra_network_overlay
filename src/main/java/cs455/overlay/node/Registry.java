@@ -50,14 +50,16 @@ public class Registry implements Node{
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
         }
+    }
 
-        //USER COMMAND INPUT
+    //USER COMMAND INPUT
+    private static void userInput(Registry node){
+        Scanner scanner = new Scanner(System.in);
         while(true){
-            Scanner scanner = new Scanner(System.in);
             String in = scanner.nextLine();
             switch (in) {
                 case "list-messaging-nodes":
-                    System.out.println("tat");
+                    System.out.println(node.NODE_LIST.print());
                     break;
                 case "list-weights":
                     System.out.println("tat");
@@ -72,7 +74,6 @@ public class Registry implements Node{
                     System.out.println("command not recognized");
                     break;
             }
-            scanner.close();
         }
     }
 
@@ -89,8 +90,11 @@ public class Registry implements Node{
 
     //First Arg = TCP Port to use for registry
     public static void main(String[] args) {
-        if(args.length != 1)
+        if(args.length != 1) {
             System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
-        else new Registry(Integer.parseInt(args[0]));
+            return;
+        }
+        Registry thisRegistry = new Registry(Integer.parseInt(args[0]));
+        userInput(thisRegistry);
     }
 }

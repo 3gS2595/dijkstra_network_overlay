@@ -69,7 +69,7 @@ public class Deregister_Response implements Event {
             new DataOutputStream(new BufferedOutputStream(baOutputStream));
 
         //insert the deregister request protocol
-        dout.writeByte(2);
+        dout.writeByte(4);
         dout.writeByte(STATUS);
 
         //insert the Address then the port of the node
