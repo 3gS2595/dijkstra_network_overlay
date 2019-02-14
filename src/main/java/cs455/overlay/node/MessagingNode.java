@@ -2,6 +2,7 @@ package cs455.overlay.node;
 
 import cs455.overlay.transport.*;
 import cs455.overlay.wireformats.Deregister_Request;
+import cs455.overlay.wireformats.MessagingNodesList;
 
 import java.io.*;
 import java.net.*;
@@ -12,6 +13,7 @@ public class MessagingNode implements Node{
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
     private Thread serverThread;
+    private MessagingNodesList.Pair[] network;
 
     //Registry's network information
     private String  REGISTRY_HOST;
@@ -76,6 +78,11 @@ public class MessagingNode implements Node{
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
         }
+    }
+
+    //Identification
+    public void setNetwork(MessagingNodesList.Pair[] network){
+        this.network = network;
     }
 
     //Identification

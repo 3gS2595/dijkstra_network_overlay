@@ -11,12 +11,13 @@ import java.lang.*;
 public class TCPServerThread implements Runnable{
     private Node    Node;
     private Integer OUR_PORT;
+    private ServerSocket serverSocket = null;
 
     public void run(){
         try {
             //Create the server socket
             Integer NUM_POSSIBLE_CONNECTIONS = 11;
-            ServerSocket ourServerSocket = new ServerSocket(OUR_PORT, NUM_POSSIBLE_CONNECTIONS);
+            this.serverSocket = new ServerSocket(OUR_PORT, NUM_POSSIBLE_CONNECTIONS);
 
             //Register's node with registry (MessengerNode)
             if (Node.isMessenger() == true) {
@@ -27,16 +28,16 @@ public class TCPServerThread implements Runnable{
             Socket incomingConnectionSocket = null;
             while (!Thread.currentThread().isInterrupted()) {
                 //Block on accepting connections. Once it has received a connection it will return a socket for us to use.
-                incomingConnectionSocket = ourServerSocket.accept();
+                incomingConnectionSocket = serverSocket.accept();
 
                 //If we get here we are no longer blocking, so we accepted a new connection
                 //create/initialize server thread
-                Thread ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket));
+                Thread ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket, this.Node));
                 ReceiverThread.start();
             }
             //clean up
             incomingConnectionSocket.close();
-            ourServerSocket.close();
+            serverSocket.close();
 
         } catch (SocketException se) {
             System.out.println(se.getMessage());
@@ -46,6 +47,7 @@ public class TCPServerThread implements Runnable{
             System.exit(1);
         }
     }
+
 
     //CONSTRUCTOR
     public TCPServerThread(int port, Node node){

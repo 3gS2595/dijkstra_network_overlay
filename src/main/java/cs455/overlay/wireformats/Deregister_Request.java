@@ -1,5 +1,6 @@
 package cs455.overlay.wireformats;
 
+import com.sun.org.apache.regexp.internal.RE;
 import cs455.overlay.node.Registry;
 import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPSender;
@@ -96,6 +97,7 @@ public class Deregister_Request implements Event {
 
         //sends request
         sender.sendData(marshaledBytes);
+        REG_SOCKET.close();
 
         if(debug) {
             System.out.println("DEREGISTER_REQUEST (SENT)");
@@ -108,6 +110,7 @@ public class Deregister_Request implements Event {
     public int getType(){
         return 3;
     }
+
     public byte[] getBytes(){
         return marshaledBytes;
     }

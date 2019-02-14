@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 public interface Node {
+
     static int acquirePORT(){
         //Find available port to use
         int PORT = -1;
@@ -28,6 +29,7 @@ public interface Node {
         }
         return PORT;
     }
+
 
     //getters
     String getRegAddr();

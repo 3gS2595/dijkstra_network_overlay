@@ -1,7 +1,7 @@
 package cs455.overlay.transport;
 
 //This is the client program.
-import cs455.overlay.node.Registry;
+import cs455.overlay.node.*;
 
 import java.io.*;
 import java.net.*;
@@ -9,6 +9,7 @@ import java.net.*;
 public class TCPReceiverThread implements Runnable{
     private Socket           socketToTheServer;
     private DataInputStream  din;
+    private Node             Node;
 
     public void run(){
         int dataLength;
@@ -22,7 +23,7 @@ public class TCPReceiverThread implements Runnable{
 
                 //send bytes for Unmarshalling and handling
                 //The current node sent for debug/data access
-                Registry.Factory.newEvent(data);
+                Registry.Factory.newEvent(data, this.Node);
 
             } catch (SocketException se) {
                 System.out.println("SocketException se: a connection dropped?");
@@ -34,8 +35,9 @@ public class TCPReceiverThread implements Runnable{
         }
     }
 
-    public TCPReceiverThread(Socket socket) throws IOException {
+    public TCPReceiverThread(Socket socket, Node node) throws IOException {
         this.socketToTheServer = socket;
+        this.Node = node;
         this.din = new DataInputStream(socket.getInputStream());
     }
 }
