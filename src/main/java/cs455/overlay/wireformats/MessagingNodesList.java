@@ -1,6 +1,7 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
+import cs455.overlay.node.MessagingNode;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

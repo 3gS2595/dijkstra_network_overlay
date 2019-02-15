@@ -1,10 +1,11 @@
 package cs455.overlay.transport;
 
-//This is the client program.
-import cs455.overlay.node.*;
+import cs455.overlay.node.Node;
+import cs455.overlay.node.Registry;
 
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 public class TCPReceiverThread implements Runnable{
     private Socket           socketToTheServer;
@@ -33,7 +34,7 @@ public class TCPReceiverThread implements Runnable{
         }
     }
 
-    public TCPReceiverThread(Socket socket, Node node) throws IOException {
+    TCPReceiverThread(Socket socket, Node node) throws IOException {
         this.socketToTheServer = socket;
         this.Node = node;
         this.din = new DataInputStream(socket.getInputStream());

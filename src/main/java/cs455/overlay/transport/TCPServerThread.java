@@ -9,9 +9,9 @@ import java.net.*;
 import java.lang.*;
 
 public class TCPServerThread implements Runnable{
-    private Node    Node;
-    private Integer OUR_PORT;
-    private ServerSocket serverSocket = null;
+    public Integer OUR_PORT;
+    public Node    Node;
+    public ServerSocket serverSocket = null;
 
     public void run(){
         try {

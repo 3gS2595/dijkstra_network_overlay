@@ -1,14 +1,19 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
-import java.io.*;
+import cs455.overlay.node.MessagingNode;
+import cs455.overlay.node.Node;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class EventFactory{
 
     //Registry's network information
-    Integer REGISTRY_PORT;
-    String  REGISTRY_HOST;
-    Node node;
+    private Integer REGISTRY_PORT;
+    private String  REGISTRY_HOST;
+    private Node node;
 
     //Called from registry to initialize vars
     public void set(String REG_HOST, Integer REG_PORT){
