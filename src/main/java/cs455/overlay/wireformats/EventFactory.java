@@ -20,7 +20,7 @@ public class EventFactory{
     public EventFactory(){}
 
     //Unmarshalling (DECRYPT)
-    public Event newEvent(byte[] marshaledBytes, Node node) throws IOException {
+    public void newEvent(byte[] marshaledBytes, Node node) throws IOException {
         this.node = node;
 
         //Retreives message "type" from marsheledBytes
@@ -32,25 +32,27 @@ public class EventFactory{
         baInputStream.close();
         din.close();
 
-        MessagingNodesList used = new MessagingNodesList();
         //Routes all incoming messages
         switch(type) {
             case Protocol.REGISTER_REQ:
-                return new Register_Request(marshaledBytes);
+                 new Register_Request(marshaledBytes);
+                 break;
             case Protocol.REGISTER_RES:
-                return new Register_Response(marshaledBytes);
+                 new Register_Response(marshaledBytes);
+                 break;
             case Protocol.DEREGISTER_REQ:
-                return new Deregister_Request(marshaledBytes);
+                 new Deregister_Request(marshaledBytes);
+                 break;
             case Protocol.DEREGISTER_RES:
-                return new Deregister_Response(marshaledBytes);
+                 new Deregister_Response(marshaledBytes);
+                 break;
             case Protocol.MESSAGING_NODES_LIST: {
-                this.node = node;
-                ((MessagingNode) this.node).setNetwork(used.receive(marshaledBytes));
-                return null;
+                 new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
+                 break;
             }
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
+                break;
         }
-        return null;
     }
 }

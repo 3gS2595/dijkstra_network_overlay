@@ -13,23 +13,21 @@ public class TCPReceiverThread implements Runnable{
 
     public void run(){
         int dataLength;
-        while (socketToTheServer != null) {
+        while (!socketToTheServer.isClosed()) {
             try {
+                if(din != null) {
+                    //receive and record message
+                    dataLength = din.readInt();
+                    byte[] data = new byte[dataLength];
+                    din.readFully(data, 0, dataLength);
 
-                //receive and record message
-                dataLength = din.readInt();
-                byte[] data = new byte[dataLength];
-                din.readFully(data, 0, dataLength);
+                    //send bytes for Unmarshalling and handling
+                    //The current node sent for debug/data access
+                    Registry.Factory.newEvent(data, this.Node);
 
-                //send bytes for Unmarshalling and handling
-                //The current node sent for debug/data access
-                Registry.Factory.newEvent(data, this.Node);
-
-            } catch (SocketException se) {
-                System.out.println("SocketException se: a connection dropped?");
-                break;
+                }
             } catch (IOException ioe) {
-                System.out.println("IOException ioe: a connetcion dropped?");
+                System.out.println("TCPReceiverThread::IOException ioe: a connetcion dropped?");
                 break;
             }
         }

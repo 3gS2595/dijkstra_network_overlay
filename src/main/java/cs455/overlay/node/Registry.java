@@ -84,18 +84,98 @@ public class Registry implements Node{
     }
 
     //sends and creates the overlay
-    private void sendOverlay(int connections){
-        int connectionLog = 0;
-        ArrayList<MessagingNodesList.Pair> overlay = new ArrayList<>();
+    private void sendOverlay(int linkLimit){
+        int numOfNodes = NODE_LIST.NODE_REGISTRY_ARRAY.size();
+        ArrayList<MessagingNodesList.Pair> nodeList = new ArrayList<>();
         Object[] values = NODE_LIST.NODE_REGISTRY_ARRAY.values().toArray();
-        for (int row = 0; row < NODE_LIST.NODE_REGISTRY_ARRAY.size(); row++) {
-            overlay.add((MessagingNodesList.Pair)values[row]);
+        HashMap<String, ArrayList<MessagingNodesList.Pair>> networkTable = new HashMap<>();
+        ArrayList<String> tested = new ArrayList<>();
+
+        //places all registered nodes into nodeList array
+        for (int curNode = 0; curNode < numOfNodes; curNode++) {
+            nodeList.add((MessagingNodesList.Pair)values[curNode]);
         }
-        for (int node = 0; node < NODE_LIST.size()-1; node++) {
+
+        //links all nodes in circular path
+        for (int curNode = 0; curNode < nodeList.size(); curNode++) {
+            ArrayList<MessagingNodesList.Pair> connections = new ArrayList<>();
+
+            System.out.println(nodeList.size());
+            //adds node infront
+            if(curNode + 1 < nodeList.size()) {
+                connections.add(nodeList.get(curNode + 1));
+                tested.add(nodeList.get(curNode + 1).getADDRESS()
+                    + " "
+                    + nodeList.get(curNode + 1).getPORT()
+                    + " "
+                    + nodeList.get(curNode).getADDRESS()
+                    + " " +
+                    + nodeList.get(curNode).getPORT());
+            } else {
+                connections.add(nodeList.get(0));
+            }
+
+            //adds node behind
+            if(curNode - 1 > (-1)) {
+                connections.add(nodeList.get(curNode - 1));
+            } else {
+                connections.add(nodeList.get(nodeList.size()-1));
+            }
+
+            String key = nodeList.get(curNode).getADDRESS()
+                + " "
+                + nodeList.get(curNode).getPORT();
+            networkTable.put(key, connections);
+        }
+
+        //completes links on all nodes until limit is reached
+        for (int curNode = 0; curNode < nodeList.size(); curNode++) {
+            String thisKey = nodeList.get(curNode).getADDRESS()
+                + " "
+                + nodeList.get(curNode).getPORT();
+            //cycles until limit is met.
+            if(networkTable.get(thisKey).size() < linkLimit){
+                //LINKS CURRENT TO THE NODE TWO PLACES AHEAD
+                if(curNode + 2 < nodeList.size()) {
+                    String connectionKey = nodeList.get(curNode + 2).getADDRESS()
+                        + " "
+                        + nodeList.get(curNode + 2).getPORT();
+
+                        if(!tested.contains(thisKey + " " + connectionKey)) {
+                            networkTable.get(thisKey).add(nodeList.get(curNode + 2));
+                            networkTable.get(connectionKey).add(nodeList.get(curNode));
+                            tested.add(thisKey + " " + connectionKey);
+                            tested.add((connectionKey + " " + thisKey));
+                            System.out.println(curNode);
+                        }
+                } else {
+                    System.out.println("??");
+                    //CATCHES FIRST AND LAST CASES (CONNECTS THEM)
+                    int place = 1;
+                    if(curNode + 1 == nodeList.size()) {
+                        place = 0;
+                    }
+                    String connectionKey = nodeList.get(place).getADDRESS()
+                        + " "
+                        + nodeList.get(place).getPORT();
+                    networkTable.get(thisKey).add(nodeList.get(place));
+                    networkTable.get(connectionKey).add(nodeList.get(curNode));
+                    System.out.println("???");
+                }
+
+            }
+        }
+
+            //sends netwrok information to respective nodes
+        Iterator iter = networkTable.keySet().iterator();
+        while (iter.hasNext()) {
             try {
-                MessagingNodesList.Pair temp;
-                temp = overlay.get(node);
-                Socket REG_SOCKET = new Socket(temp.getADDRESS(), temp.getPORT());
+                String thisKey = (String)iter.next();
+                ArrayList<MessagingNodesList.Pair> curNetwork = networkTable.get(thisKey);
+                String[] temp = thisKey.split(" ");
+                String Address = temp[0];
+                int Port = (Integer.parseInt(temp[1]));
+                Socket REG_SOCKET = new Socket(Address, Port);
                 TCPSender sender = new TCPSender(REG_SOCKET);
 
                 ///creates Request message byte array
@@ -110,31 +190,18 @@ public class Registry implements Node{
                 dout.writeByte(5);
 
                 //inserts the number of nodes
-                int numberOfNodes = 1;
+                int numberOfNodes = curNetwork.size();
                 dout.writeInt(numberOfNodes);
-
-                //Attatches the node to node next to it
-                MessagingNodesList.Pair messenger;
-                messenger = overlay.get(node + 1);
-                byte[] ADDRESS = messenger.getADDRESS().getBytes();
-                int elementLength = messenger.getADDRESS().length();
-                dout.writeInt(elementLength);
-                dout.write(ADDRESS);
-                dout.writeInt(messenger.getPORT());
 
                 //attatches spider legs to nodes that have not been connected yet
                 //(jumps ahead and connects non linearly)
-                for (int i = 0; i < connections - 1; i++){
-                    if (node + i < NODE_LIST.size()) {
-                        //insert the Address then the port of the node
-                        messenger = overlay.get(connectionLog + i);
-                        ADDRESS = messenger.getADDRESS().getBytes();
-                        elementLength = messenger.getADDRESS().length();
-                        dout.writeInt(elementLength);
-                        dout.write(ADDRESS);
-                        dout.writeInt(messenger.getPORT());
-                        connectionLog++;
-                    }
+                for (int i = 0; i < curNetwork.size(); i++){
+                    //insert the Address then the port of the node
+                    MessagingNodesList.Pair messenger = curNetwork.get(i);
+                    byte[] ADDRESS = messenger.getADDRESS().getBytes();
+                    dout.writeInt(ADDRESS.length);
+                    dout.write(ADDRESS);
+                    dout.writeInt(messenger.getPORT());
                 }
 
                 //records payload and cleans up

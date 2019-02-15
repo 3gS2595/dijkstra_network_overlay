@@ -12,7 +12,6 @@ public class MessagingNode implements Node{
 
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
-    private Thread serverThread;
     private MessagingNodesList.Pair[] network;
 
     //Registry's network information
@@ -28,6 +27,8 @@ public class MessagingNode implements Node{
         this.REGISTRY_HOST = REGHOST;
         this.REGISTRY_PORT = REGPORT;
 
+
+
         //Initializes the TCPServerThread
         try {
             //acquire available tcp port
@@ -35,7 +36,7 @@ public class MessagingNode implements Node{
             this.NODE_PORT = Node.acquirePORT();
 
             //create/initialize server thread
-            serverThread = new Thread(new TCPServerThread(NODE_PORT, this));
+            Thread serverThread = new Thread(new TCPServerThread(NODE_PORT, this));
             serverThread.start();
 
             if (debug) {
@@ -43,6 +44,7 @@ public class MessagingNode implements Node{
                     "NODE_HOST: " + NODE_HOST + "\n" +
                     "NODE_PORT: " + NODE_PORT + "\n");
             }
+            this.userInput(this);
 
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
@@ -51,7 +53,7 @@ public class MessagingNode implements Node{
     }
 
     //USER INPUT
-    private static void userInput(MessagingNode node){
+    private void userInput(MessagingNode node){
         //USER COMMAND INPUT
         Scanner scanner = new Scanner(System.in);
         while(true){
@@ -73,7 +75,6 @@ public class MessagingNode implements Node{
     private void terminateNode(){
         try {
             new Deregister_Request(this);
-            this.serverThread.interrupt();
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
@@ -103,6 +104,5 @@ public class MessagingNode implements Node{
             return;
         }
         MessagingNode thisNode = new MessagingNode(args[0], Integer.parseInt(args[1]));
-        userInput(thisNode);
     }
 }

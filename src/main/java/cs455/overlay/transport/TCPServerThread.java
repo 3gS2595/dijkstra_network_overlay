@@ -21,7 +21,7 @@ public class TCPServerThread implements Runnable{
 
             //Register's node with registry (MessengerNode)
             if (Node.isMessenger() == true) {
-                new Register_Request(Node);
+                new Register_Request(this.Node);
             }
 
             //Loop should continue indefinitely

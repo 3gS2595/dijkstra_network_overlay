@@ -1,6 +1,5 @@
 package cs455.overlay.wireformats;
 
-import com.sun.org.apache.regexp.internal.RE;
 import cs455.overlay.node.Registry;
 import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPSender;
