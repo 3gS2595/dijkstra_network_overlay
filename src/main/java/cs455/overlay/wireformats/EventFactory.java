@@ -1,12 +1,19 @@
 package cs455.overlay.wireformats;
 
-import java.io.*;
+import cs455.overlay.node.MessagingNode;
+import cs455.overlay.node.Node;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class EventFactory{
 
     //Registry's network information
-    Integer REGISTRY_PORT;
-    String  REGISTRY_HOST;
+    private Integer REGISTRY_PORT;
+    private String  REGISTRY_HOST;
+    private Node node;
 
     //Called from registry to initialize vars
     public void set(String REG_HOST, Integer REG_PORT){
@@ -18,7 +25,8 @@ public class EventFactory{
     public EventFactory(){}
 
     //Unmarshalling (DECRYPT)
-    public void newEvent(byte[] marshaledBytes) throws IOException {
+    public void newEvent(byte[] marshaledBytes, Node node) throws IOException {
+        this.node = node;
 
         //Retreives message "type" from marsheledBytes
         ByteArrayInputStream baInputStream =
@@ -32,17 +40,21 @@ public class EventFactory{
         //Routes all incoming messages
         switch(type) {
             case Protocol.REGISTER_REQ:
-                new Register_Request(marshaledBytes);
-                break;
+                 new Register_Request(marshaledBytes);
+                 break;
             case Protocol.REGISTER_RES:
-                new Register_Response(marshaledBytes);
-                break;
+                 new Register_Response(marshaledBytes);
+                 break;
             case Protocol.DEREGISTER_REQ:
-                new Deregister_Request(marshaledBytes);
-                break;
+                 new Deregister_Request(marshaledBytes);
+                 break;
             case Protocol.DEREGISTER_RES:
-                new Deregister_Response(marshaledBytes);
-                break;
+                 new Deregister_Response(marshaledBytes);
+                 break;
+            case Protocol.MESSAGING_NODES_LIST: {
+                 new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
+                 break;
+            }
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
                 break;

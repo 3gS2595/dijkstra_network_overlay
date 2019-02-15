@@ -3,13 +3,14 @@ package cs455.overlay.node;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
+import cs455.overlay.wireformats.createOverlay;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Scanner;
 
-public class Registry implements Node{
 
+public class Registry implements Node{
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
 
@@ -22,6 +23,7 @@ public class Registry implements Node{
     //Registry's network information
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
+    private TCPServerThread ServerThread;
 
     //CONSTRUCTOR
     private Registry(int ARG_REGISTER_PORT) {
@@ -43,36 +45,38 @@ public class Registry implements Node{
             }
 
             //Initializes a TCPServerThread
-            Thread newServerThread = new Thread(new TCPServerThread(this.REGISTRY_PORT, this));
+            ServerThread = new TCPServerThread(this.REGISTRY_PORT, this);
+            Thread newServerThread = new Thread(ServerThread);
             newServerThread.start();
 
         } catch (IOException e) {
             System.out.println("Registry::failed_starting_server_thread:: " + e);
             System.exit(1);
         }
+    }
 
-        //USER COMMAND INPUT
+    //USER COMMAND INPUT
+    private static void userInput(Registry node){
+        Scanner scanner = new Scanner(System.in);
         while(true){
-            Scanner scanner = new Scanner(System.in);
             String in = scanner.nextLine();
-            switch (in) {
+            String[] start = in.split(" ");
+            switch (start[0]) {
                 case "list-messaging-nodes":
-                    System.out.println("tat");
+                    System.out.println(node.NODE_LIST.print());
                     break;
                 case "list-weights":
                     System.out.println("tat");
                     break;
-                case "setup-overlay number-of-connections":
-                    System.out.println("tat");
+                case "setup":
+                    new createOverlay(Integer.parseInt(start[1]));
                     break;
                 case "send-overlay-link-weights":
-                    System.out.println("tat");
                     break;
                 default:
                     System.out.println("command not recognized");
                     break;
             }
-            scanner.close();
         }
     }
 
@@ -89,8 +93,11 @@ public class Registry implements Node{
 
     //First Arg = TCP Port to use for registry
     public static void main(String[] args) {
-        if(args.length != 1)
+        if(args.length != 1) {
             System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
-        else new Registry(Integer.parseInt(args[0]));
+            return;
+        }
+        Registry thisRegistry = new Registry(Integer.parseInt(args[0]));
+        userInput(thisRegistry);
     }
 }
