@@ -28,67 +28,25 @@ public class Register_Response implements Event {
         //Throws away message type data;
         din.readByte();
 
-        //Stores the Request Response's status code
-        byte STATUS = din.readByte();
-
         //Stores the Request Response's additional info
         int statusCodeLength = din.readInt();
         byte[] identifierBytes = new byte[statusCodeLength];
         din.readFully(identifierBytes);
         String ADDITIONAL_INFO = new String(identifierBytes);
+        int Satus = Character.getNumericValue(ADDITIONAL_INFO.charAt(0));
+        String Info = ADDITIONAL_INFO.substring(1);
 
         //Final clean up
         baInputStream.close();
         din.close();
-
-        if(debug) {
-            System.out.println("REGISTER_RESPONSE(RECEIVED)");
-            System.out.print("  (Status Code: " + STATUS + ")");
-            System.out.print("(Additional Info: " + ADDITIONAL_INFO + ")");
-            System.out.println();
-        }
     }
 
     //SENDS RESPONSE
-    public Register_Response(String NODE_ADDRESS, int NODE_PORT, byte STATUS, String INFO)  throws IOException {
-
-        //creates Request message byte array
-        byte[] marshaledBytes;
-
-        //creates socket to server
-        Socket REG_SOCKET = new Socket(NODE_ADDRESS, NODE_PORT);
-
-        //Initialize used streams
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout =
-            new DataOutputStream(new BufferedOutputStream(baOutputStream));
-
-        //insert the register request protocol
-        dout.writeByte(2);
-        dout.writeByte(STATUS);
-
-        //insert the Address then the port of the node
-        byte[] ADDITIONAL_INFO = (INFO).getBytes();
-        int elementLength = ADDITIONAL_INFO.length;
-        dout.writeInt(elementLength);
-        dout.write(ADDITIONAL_INFO);
-
-        //records payload and cleans up
-        dout.flush();
-        marshaledBytes = baOutputStream.toByteArray();
-        baOutputStream.close();
-        dout.close();
-
-        //sends request
-        TCPSender sender = new TCPSender(REG_SOCKET);
-        sender.sendData(marshaledBytes);
-
-        if(debug) {
-            System.out.println("REGISTER_RESPONSE (SENT)");
-            System.out.print("  (Status Code: " + STATUS + ")");
-            System.out.print("(Additional Info: " + INFO + ")");
-            System.out.println();
-        }
+    public Register_Response(String NODE_ADDRESS, int NODE_PORT, String INFO)  throws IOException {
+        String key = NODE_ADDRESS + ":" + NODE_PORT;
+        byte[][] messageBytes =  new byte[1][];
+        messageBytes[0] = INFO.getBytes();
+        TCPSender.sendMessage(key, (byte)2, 1, messageBytes);
     }
 
     public int getType(){ return 2; }

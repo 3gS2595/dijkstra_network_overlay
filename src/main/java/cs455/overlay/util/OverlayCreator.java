@@ -17,7 +17,6 @@ public class OverlayCreator {
     //creates and then sends the overlay to the MessagingNodes
     public OverlayCreator(int linkLimit) throws IOException{
 
-        //number of nodes that have been registered with this registry
         int numOfNodes = Registry.NODE_LIST.NODE_REGISTRY_ARRAY.size();
 
         //nodeList, an array of all registered nodes info
@@ -32,27 +31,23 @@ public class OverlayCreator {
 
         //links all nodes in circular path
         for (int curNode = 0; curNode < nodeList.size(); curNode++) {
-            //the final return variable which houses a single nodes network connections
             ArrayList<MessagingNodesList.Pair> connections = new ArrayList<>();
-            ArrayList<MessagingNodesList.Pair> connectionsSender = new ArrayList<>();
+            ArrayList<MessagingNodesList.Pair> connectionsOfSender = new ArrayList<>();
 
-
-            //the two keys used in placing records of what nodes have already been
-            //added to the overlay (avoids any overlap)
-            String thisKey = getKey(nodeList,curNode, 0);
+            String thisNodesKey = getKey(nodeList,curNode, 0);
             String otherNodesKey;
 
             //CONNECTS to the node infront of it
             if(curNode + 1 < nodeList.size()) {
                 connections.add(nodeList.get(curNode + 1));
-                connectionsSender.add(nodeList.get(curNode + 1));
+                connectionsOfSender.add(nodeList.get(curNode + 1));
                 otherNodesKey = getKey(nodeList,curNode, 1);
             } else {
                 connections.add(nodeList.get(0));
-                connectionsSender.add(nodeList.get(0));
+                connectionsOfSender.add(nodeList.get(0));
                 otherNodesKey = getKey(nodeList,0, 0);
             }
-            recordConnections(otherNodesKey, thisKey);
+            recordConnections(otherNodesKey, thisNodesKey);
 
             //CONNECTS to the node behind it
             if(curNode - 1 > (-1)) {
@@ -62,12 +57,12 @@ public class OverlayCreator {
                 connections.add(nodeList.get(nodeList.size()-1));
                 otherNodesKey = getKey(nodeList,nodeList.size(), -1);
             }
-            recordConnections(otherNodesKey, thisKey);
+            recordConnections(otherNodesKey, thisNodesKey);
 
             //adds the final resulting
             String key = getKey(nodeList, curNode,0);
             networkTable.put(key, connections);
-            networkTableSenders.put(key, connectionsSender);
+            networkTableSenders.put(key, connectionsOfSender);
         }
 
         //completes links on all nodes until limit is reached
@@ -84,24 +79,20 @@ public class OverlayCreator {
                     connectionKey = getKey(nodeList, curNode,2);
                     modifier += 2;
                 }
+
                 //CATCHES THE FIRST AND LAST NODES AND CONNECTS THEM
                 else {
-                    int place;
+                    modifier = 1;
                     if(curNode + 2 == nodeList.size())
-                        place = 0;
-                    else
-                        place = 1;
-                    connectionKey = getKey(nodeList, place,0);
-                    modifier = place;
+                        modifier = 0;
+                    connectionKey = getKey(nodeList, modifier,0);
                 }
 
                 //If the onnection hasnt already been made it assigns it
                 if(!tested.contains(thisKey + ":" + connectionKey)) {
                     networkTable.get(thisKey).add(nodeList.get(modifier));
                     networkTable.get(connectionKey).add(nodeList.get(curNode));
-                    //adds to record to avoid using twice
                     recordConnections(thisKey, connectionKey);
-
                     networkTableSenders.get(thisKey).add(nodeList.get(modifier));
                 }
             }
@@ -135,10 +126,9 @@ public class OverlayCreator {
             for (MessagingNodesList.Pair messenger: curNetworks) {
                 //generates weight and then sends
                 Random rn = new Random();
-                int weight = rn.nextInt(10) + 1;
-                String notationString = thisKey.concat(" " +
-                    messenger.getADDRESS() +
-                    ":" + messenger.getPORT().toString() + " " + weight);
+                String notationString = (thisKey +
+                    " " + messenger.toKey() +
+                    " " + rn.nextInt(10) + 1);
                 byte[] data = notationString.getBytes();
                 weightBytes[wnum] = data;
                 wnum++;
