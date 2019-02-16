@@ -1,9 +1,9 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
-import cs455.overlay.wireformats.createOverlay;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -65,7 +65,7 @@ public class Registry implements Node{
                     System.out.println("tat");
                     break;
                 case "setup":
-                    new createOverlay(Integer.parseInt(start[1]));
+                    new OverlayCreator(Integer.parseInt(start[1]));
                     break;
                 case "send-overlay-link-weights":
                     break;
