@@ -28,7 +28,8 @@ public class TCPReceiverThread implements Runnable{
 
                 }
             } catch (IOException ioe) {
-                System.out.println("TCPReceiverThread::IOException ioe: a connetcion dropped?");
+                //TODO WAS GETTING THIS ON OVERLAY RESPONSE NORMAL??
+                //System.out.println("TCPReceiverThread::IOException ioe: a connetcion dropped?");
                 break;
             }
         }

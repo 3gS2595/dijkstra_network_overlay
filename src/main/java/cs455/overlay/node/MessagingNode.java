@@ -81,12 +81,20 @@ public class MessagingNode implements Node{
         }
     }
 
-    //Identification
+    //INTAKES GIVEN NETWORK OVERLAY
     public void setNetwork(MessagingNodesList.Pair[] network){
         this.network = network;
+        String print = "";
+        for (int i = 0; i < network.length; i++){
+            print = print.concat(network[i].getADDRESS() + " "
+                    + network[i].getPORT() + "\n");
+        }
+        if (debug) {
+            System.out.println("RECEIVED OVERLAY LIST\n" + print);
+        }
     }
 
-    //Identification
+    //IDENTIFICATION
     public boolean isMessenger(){ return true; }
 
     //GETTERS
@@ -103,6 +111,6 @@ public class MessagingNode implements Node{
             System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
             return;
         }
-        MessagingNode thisNode = new MessagingNode(args[0], Integer.parseInt(args[1]));
+        new MessagingNode(args[0], Integer.parseInt(args[1]));
     }
 }

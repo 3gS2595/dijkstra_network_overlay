@@ -67,7 +67,7 @@ public class MessagingNodesList implements Event{
         }
     }
 
-    //RECEIVES REQUEST
+    //RECEIVES OVERLAY REQUEST
     //Assigns given list to the node, array stored in messagingNode node
     public MessagingNodesList(byte[] marshaledBytes, MessagingNode node) throws IOException {
         MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
@@ -106,15 +106,6 @@ public class MessagingNodesList implements Event{
         //complete, cleans up
         baInputStream.close();
         din.close();
-
-        //DEBUG
-        if (debug) {
-            String temp = "";
-            for (int i = 0; i < arrayLength; i++){
-                temp = temp.concat(OVERLAY_CONNECTION_NODES[i].toStr() + "\n");
-            }
-            System.out.println("OVERLAY NODE LIST RECEIVED\n" + temp);
-        }
 
         //SENDS DEREGISTER_RESPONSE
         //new Deregister_Response(NODE_ADDRESS, NODE_PORT, status, info);

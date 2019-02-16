@@ -73,6 +73,7 @@ public class createOverlay {
         for (int curNode = 0; curNode < nodeList.size(); curNode++) {
             String connectionKey;
             String thisKey = getKey(nodeList, curNode,0);
+            int modifier= 0;
 
             //Stops once connection limit is reached
             if(networkTable.get(thisKey).size() < linkLimit){
@@ -80,6 +81,7 @@ public class createOverlay {
                 //LINKS CURRENT TO THE NODE TWO PLACES AHEAD
                 if(curNode + 2 < nodeList.size()) {
                     connectionKey = getKey(nodeList, curNode,2);
+                    modifier = 2;
                 }
                 //CATCHES THE FIRST AND LAST CASE AND CONNECTS THEM
                 else {
@@ -93,7 +95,7 @@ public class createOverlay {
 
                 //If the onnection hasnt already been made it assigns it
                 if(!tested.contains(thisKey + " " + connectionKey)) {
-                    networkTable.get(thisKey).add(nodeList.get(curNode + 2));
+                    networkTable.get(thisKey).add(nodeList.get(curNode + modifier));
                     networkTable.get(connectionKey).add(nodeList.get(curNode));
                 }
                 //adds to record to avoid using twice
@@ -103,6 +105,13 @@ public class createOverlay {
         }
 
         //sends netwrok information to respective nodes
+        //DATA FORMAT SENT
+        //(int) type
+        //(int) number of incoming nodes
+        //  for each node
+        //  (int) length of string
+        //  (String) address
+        //  (int) port
         for (String thisKey: networkTable.keySet()) {
             try {
                 //Connection initialization based on keys information

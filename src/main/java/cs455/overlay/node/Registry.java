@@ -14,16 +14,15 @@ public class Registry implements Node{
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
 
+    //Registry's network information
+    private String  REGISTRY_HOST;
+    private Integer REGISTRY_PORT;
+
     //The only EventFactory Instance
     public final static EventFactory Factory = new EventFactory();
 
     //Actual "registry" (hashed)
     public final static MessagingNodesList NODE_LIST = new MessagingNodesList();
-
-    //Registry's network information
-    private String  REGISTRY_HOST;
-    private Integer REGISTRY_PORT;
-    private TCPServerThread ServerThread;
 
     //CONSTRUCTOR
     private Registry(int ARG_REGISTER_PORT) {
@@ -34,9 +33,6 @@ public class Registry implements Node{
             //Attains the Server address of the used machine
             this.REGISTRY_HOST = InetAddress.getLocalHost().getHostName();
 
-            //Enters the registry info for entire JVM to access
-            this.Factory.set(this.REGISTRY_HOST, this.REGISTRY_PORT);
-
             //DEBUG
             if (debug) {
                 System.out.println("INITIALIZED REGISTRY NODE\n" +
@@ -45,7 +41,7 @@ public class Registry implements Node{
             }
 
             //Initializes a TCPServerThread
-            ServerThread = new TCPServerThread(this.REGISTRY_PORT, this);
+            TCPServerThread ServerThread = new TCPServerThread(this.REGISTRY_PORT, this);
             Thread newServerThread = new Thread(ServerThread);
             newServerThread.start();
 
