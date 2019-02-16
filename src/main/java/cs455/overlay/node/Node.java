@@ -30,7 +30,7 @@ public interface Node {
         return PORT;
     }
 
-
+    String getKey();
     //getters
     String getRegAddr();
     int getRegPort();

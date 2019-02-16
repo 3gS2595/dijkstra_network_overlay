@@ -27,7 +27,7 @@ public class MessagingNodesList implements Event{
     }
 
     String ADD_NODE(String ADDRESS, int PORT){
-        String key = ADDRESS + " " + PORT;
+        String key = ADDRESS + ":" + PORT;
         if(!NODE_REGISTRY_ARRAY.containsKey(key)){
             NODE_REGISTRY_ARRAY.put(key, new Pair(PORT, ADDRESS));
             return "1NODE REGISTERED";
@@ -36,7 +36,7 @@ public class MessagingNodesList implements Event{
     }
 
     String REM_NODE(String ADDRESS, int PORT){
-        String key = ADDRESS + " " + PORT;
+        String key = ADDRESS + ":" + PORT;
         if(this.NODE_REGISTRY_ARRAY.containsKey(key)){
             this.NODE_REGISTRY_ARRAY.remove(key);
             return "1NODE DEREGISTERED";
@@ -63,14 +63,15 @@ public class MessagingNodesList implements Event{
 
         //TOSTRING
         private String toStr() {
-            return this.getADDRESS() + " " + this.getPORT();
+            return this.getADDRESS() + ":" + this.getPORT();
         }
     }
 
-    //RECEIVES REQUEST
+    //RECEIVES OVERLAY REQUEST
     //Assigns given list to the node, array stored in messagingNode node
     public MessagingNodesList(byte[] marshaledBytes, MessagingNode node) throws IOException {
         MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
+        MessagingNodesList.Pair[] OVERLAY_CONNECTION_WEIGHTS;
         this.marshaledBytes = marshaledBytes;
 
         //Incoming network info
@@ -83,42 +84,63 @@ public class MessagingNodesList implements Event{
             new DataInputStream(new BufferedInputStream(baInputStream));
 
         //Throws away type data;
-        din.readByte();
+        int type = din.readByte();
 
-        //creates sized array for overlay nodes
         int arrayLength = din.readInt();
         OVERLAY_CONNECTION_NODES = new MessagingNodesList.Pair[arrayLength];
+        OVERLAY_CONNECTION_WEIGHTS = new MessagingNodesList.Pair[arrayLength];
 
-        for(int i = 0; i < arrayLength; i++){
-            //stores string
-            int strLength = din.readInt();
-            byte[] identifierBytes = new byte[strLength];
-            din.readFully(identifierBytes);
-            NODE_ADDRESS = new String(identifierBytes);
+        if (type == 5) {
+            //creates sized array for overlay nodes
+            for (int i = 0; i < arrayLength; i++) {
+                //stores string
+                int strLength = din.readInt();
+                byte[] identifierBytes = new byte[strLength];
+                din.readFully(identifierBytes);
+                String raw = new String(identifierBytes);
+                String[] nodeData = raw.split(":");
+                NODE_ADDRESS = nodeData[0];
+                NODE_PORT = Integer.parseInt(nodeData[1]);
 
-            //Stores NODE's PORT
-            NODE_PORT = din.readInt();
+                //inserts node into array
+                OVERLAY_CONNECTION_NODES[i] = new Pair(NODE_PORT, NODE_ADDRESS);
 
-            //inserts node into array
-            OVERLAY_CONNECTION_NODES[i] = new Pair(NODE_PORT, NODE_ADDRESS);
+            }
+        } else if (type == 6) {
+            //creates sized array for overlay nodes
+
+            for (int i = 0; i < arrayLength; i++) {
+                //stores string
+                int strLength = din.readInt();
+                byte[] identifierBytes = new byte[strLength];
+                din.readFully(identifierBytes);
+                String raw = new String(identifierBytes);
+                String[] nodeData = raw.split(" ");
+                String[] node1 = nodeData[0].split(":");
+                String[] node2 = nodeData[1].split(":");
+                NODE_ADDRESS = node1[0];
+                NODE_PORT = Integer.parseInt(node1[1]);
+                String NODE_ADDRESS2 = node2[0];
+                int NODE_PORT2 = Integer.parseInt(node2[1]);
+                int weight = Integer.parseInt(nodeData[2]);
+
+                if(node.getKey().equals(nodeData[0]) || node.getKey().equals(nodeData[1])){
+                    System.out.println(raw);
+                    //OVERLAY_CONNECTION_WEIGHTS[i] = new Pair(NODE_PORT, NODE_ADDRESS);
+                }
+
+            }
         }
 
         //complete, cleans up
         baInputStream.close();
         din.close();
 
-        //DEBUG
-        if (debug) {
-            String temp = "";
-            for (int i = 0; i < arrayLength; i++){
-                temp = temp.concat(OVERLAY_CONNECTION_NODES[i].toStr() + "\n");
-            }
-            System.out.println("OVERLAY NODE LIST RECEIVED\n" + temp);
+        if(type == 5) {
+            node.setNetwork(OVERLAY_CONNECTION_NODES);
         }
-
         //SENDS DEREGISTER_RESPONSE
         //new Deregister_Response(NODE_ADDRESS, NODE_PORT, status, info);
-        node.setNetwork(OVERLAY_CONNECTION_NODES);
     }
     public int getType(){
         return 5;

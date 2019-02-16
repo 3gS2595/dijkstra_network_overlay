@@ -6,4 +6,5 @@ public interface Protocol {
     int DEREGISTER_REQ = 3;
     int DEREGISTER_RES = 4;
     int MESSAGING_NODES_LIST = 5;
+    int MESSAGING_NODES_WEIGHTS = 6;
 }

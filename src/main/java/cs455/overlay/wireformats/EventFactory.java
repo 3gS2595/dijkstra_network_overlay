@@ -11,22 +11,14 @@ import java.io.IOException;
 public class EventFactory{
 
     //Registry's network information
-    private Integer REGISTRY_PORT;
-    private String  REGISTRY_HOST;
     private Node node;
-
-    //Called from registry to initialize vars
-    public void set(String REG_HOST, Integer REG_PORT){
-        this.REGISTRY_PORT = REG_PORT;
-        this.REGISTRY_HOST = REG_HOST;
-    }
 
     //Initial constructor called by registry
     public EventFactory(){}
 
     //Unmarshalling (DECRYPT)
-    public void newEvent(byte[] marshaledBytes, Node node) throws IOException {
-        this.node = node;
+    public void newEvent(byte[] marshaledBytes, Node receivingNode) throws IOException {
+        this.node = receivingNode;
 
         //Retreives message "type" from marsheledBytes
         ByteArrayInputStream baInputStream =
@@ -54,6 +46,10 @@ public class EventFactory{
             case Protocol.MESSAGING_NODES_LIST: {
                  new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
                  break;
+            }
+            case Protocol.MESSAGING_NODES_WEIGHTS: {
+                new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
+                break;
             }
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
