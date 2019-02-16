@@ -10,96 +10,103 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
-//TODO CLEAN UP THE INSANITY THAT THIS HAS BECOME
-//works tho :)
-
+//only used by the Registry Node
 public class createOverlay {
-    //sends and creates the overlay
+
+    //creates and then sends the overlay to the MessagingNodes
     public createOverlay(int linkLimit){
+        //VARIABLES DESCRIPTIONS
+        //number of nodes that have been registered with this registry
         int numOfNodes = Registry.NODE_LIST.NODE_REGISTRY_ARRAY.size();
+
+        //nodeList, an array of all registered nodes info
         ArrayList<MessagingNodesList.Pair> nodeList = new ArrayList<>();
         Object[] values = Registry.NODE_LIST.NODE_REGISTRY_ARRAY.values().toArray();
+        //places all registered nodes into nodeList array
+        for (int curNode = 0; curNode < numOfNodes; curNode++)
+            nodeList.add((MessagingNodesList.Pair)values[curNode]);
+
+        //network table is the final collection of all nodes and their connections
+        //tested, used to verify a connection has not already been assigned
         HashMap<String, ArrayList<MessagingNodesList.Pair>> networkTable = new HashMap<>();
         ArrayList<String> tested = new ArrayList<>();
 
-        //places all registered nodes into nodeList array
-        for (int curNode = 0; curNode < numOfNodes; curNode++) {
-            nodeList.add((MessagingNodesList.Pair)values[curNode]);
-        }
-
         //links all nodes in circular path
         for (int curNode = 0; curNode < nodeList.size(); curNode++) {
+            //the final return variable which houses a single nodes network connections
             ArrayList<MessagingNodesList.Pair> connections = new ArrayList<>();
-            String key2 = nodeList.get(curNode).getADDRESS() + " " + + nodeList.get(curNode).getPORT();
 
-            //adds node infront
+            //the two keys used in placing records of what nodes have already been
+            //added to the overlay (avoids any overlap)
+            String key2 = getKey(nodeList,curNode, 0);
+            String key1;
+
+            //CONNECTS to the node infront of it
             if(curNode + 1 < nodeList.size()) {
                 connections.add(nodeList.get(curNode + 1));
-                String key1 = nodeList.get(curNode + 1).getADDRESS() + " " + nodeList.get(curNode + 1).getPORT();
-                tested.add(key1 + " " + key2);
-                tested.add(key2 + " " + key1);
+                key1 = getKey(nodeList,curNode, 1);
             } else {
                 connections.add(nodeList.get(0));
-                String key1 = nodeList.get(0).getADDRESS() + " " + nodeList.get(0).getPORT();
-                tested.add(key1 + " " + key2);
-                tested.add(key2 + " " + key1);
+                key1 = getKey(nodeList,0, 0);
             }
+            tested.add(key1 + " " + key2);
+            tested.add(key2 + " " + key1);
 
-            //adds node behind
+            //CONNECTS to the node behind it
             if(curNode - 1 > (-1)) {
                 connections.add(nodeList.get(curNode - 1));
+                key1 = getKey(nodeList,curNode, -1);
             } else {
                 connections.add(nodeList.get(nodeList.size()-1));
+                key1 = getKey(nodeList,nodeList.size(), -1);
             }
+            tested.add(key1 + " " + key2);
+            tested.add(key2 + " " + key1);
 
-            String key = nodeList.get(curNode).getADDRESS()
-                + " "
-                + nodeList.get(curNode).getPORT();
+            //adds the final resulting
+            String key = getKey(nodeList, curNode,0);
             networkTable.put(key, connections);
         }
 
         //completes links on all nodes until limit is reached
         for (int curNode = 0; curNode < nodeList.size(); curNode++) {
-            String thisKey = nodeList.get(curNode).getADDRESS()
-                + " "
-                + nodeList.get(curNode).getPORT();
+            String connectionKey;
+            String thisKey = getKey(nodeList, curNode,0);
 
-            //cycles until limit is met.
+            //Stops once connection limit is reached
             if(networkTable.get(thisKey).size() < linkLimit){
 
                 //LINKS CURRENT TO THE NODE TWO PLACES AHEAD
                 if(curNode + 2 < nodeList.size()) {
-                    String connectionKey = nodeList.get(curNode + 2).getADDRESS()
-                        + " "
-                        + nodeList.get(curNode + 2).getPORT();
-
-                    if(!tested.contains(thisKey + " " + connectionKey)) {
-                        networkTable.get(thisKey).add(nodeList.get(curNode + 2));
-                        networkTable.get(connectionKey).add(nodeList.get(curNode));
-                        tested.add(thisKey + " " + connectionKey);
-                        tested.add((connectionKey + " " + thisKey));
-                    }
-                } else {
-                    //CATCHES FIRST AND LAST CASES (CONNECTS THEM)
-                    int place = 1;
-                    if(curNode + 2 == nodeList.size()) {
+                    connectionKey = getKey(nodeList, curNode,2);
+                }
+                //CATCHES THE FIRST AND LAST CASE AND CONNECTS THEM
+                else {
+                    int place;
+                    if(curNode + 2 == nodeList.size())
                         place = 0;
-                    }
-                    String connectionKey = nodeList.get(place).getADDRESS()
-                        + " "
-                        + nodeList.get(place).getPORT();
-                    networkTable.get(thisKey).add(nodeList.get(place));
-                    networkTable.get(connectionKey).add(nodeList.get(curNode));
+                    else
+                        place = 1;
+                    connectionKey = getKey(nodeList, place,0);
                 }
 
+                //If the onnection hasnt already been made it assigns it
+                if(!tested.contains(thisKey + " " + connectionKey)) {
+                    networkTable.get(thisKey).add(nodeList.get(curNode + 2));
+                    networkTable.get(connectionKey).add(nodeList.get(curNode));
+                }
+                //adds to record to avoid using twice
+                tested.add(thisKey + " " + connectionKey);
+                tested.add((connectionKey + " " + thisKey));
             }
         }
 
         //sends netwrok information to respective nodes
         for (String thisKey: networkTable.keySet()) {
             try {
+                //Connection initialization based on keys information
+                //curNetwork is the current nodes network networkTable entry
                 ArrayList<MessagingNodesList.Pair> curNetwork = networkTable.get(thisKey);
                 String[] temp = thisKey.split(" ");
                 String Address = temp[0];
@@ -122,8 +129,7 @@ public class createOverlay {
                 int numberOfNodes = curNetwork.size();
                 dout.writeInt(numberOfNodes);
 
-                //attatches spider legs to nodes that have not been connected yet
-                //(jumps ahead and connects non linearly)
+                //records each node from current nodes networkTable entry
                 for (MessagingNodesList.Pair messenger: curNetwork) {
                     //insert the Address then the port of the node
                     byte[] ADDRESS = messenger.getADDRESS().getBytes();
@@ -148,5 +154,10 @@ public class createOverlay {
             }
 
         }
+    }
+
+    private String getKey(ArrayList<MessagingNodesList.Pair> nodeList, int place, int modifier){
+        return nodeList.get(place + modifier).getADDRESS() + " "
+            + nodeList.get(place + modifier).getPORT();
     }
 }
