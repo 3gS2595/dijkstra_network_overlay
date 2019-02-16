@@ -94,10 +94,10 @@ public class MessagingNodesList implements Event{
             int strLength = din.readInt();
             byte[] identifierBytes = new byte[strLength];
             din.readFully(identifierBytes);
-            NODE_ADDRESS = new String(identifierBytes);
-
-            //Stores NODE's PORT
-            NODE_PORT = din.readInt();
+            String raw = new String(identifierBytes);
+            String[] nodeData = raw.split(":");
+            NODE_ADDRESS = nodeData[0];
+            NODE_PORT = Integer.parseInt(nodeData[1]);
 
             //inserts node into array
             OVERLAY_CONNECTION_NODES[i] = new Pair(NODE_PORT, NODE_ADDRESS);

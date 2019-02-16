@@ -86,7 +86,7 @@ public class MessagingNode implements Node{
         this.network = network;
         String print = "";
         for (int i = 0; i < network.length; i++){
-            print = print.concat(network[i].getADDRESS() + " "
+            print = print.concat(network[i].getADDRESS() + ":"
                     + network[i].getPORT() + "\n");
         }
         if (debug) {

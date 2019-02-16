@@ -152,10 +152,10 @@ public class createOverlay {
                 //records each node from current nodes networkTable entry
                 for (MessagingNodesList.Pair messenger: curNetworks) {
                     //insert the Address then the port of the node
-                    byte[] ADDRESS = messenger.getADDRESS().getBytes();
-                    dout.writeInt(ADDRESS.length);
-                    dout.write(ADDRESS);
-                    dout.writeInt(messenger.getPORT());
+                    String notationString = messenger.getADDRESS().concat(":" + messenger.getPORT().toString());
+                    byte[] data = notationString.getBytes();
+                    dout.writeInt(data.length);
+                    dout.write(data);
                 }
 
                 //records payload and cleans up
