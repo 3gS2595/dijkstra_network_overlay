@@ -52,14 +52,14 @@ public class Registry implements Node{
     }
 
     //USER COMMAND INPUT
-    private static void userInput(Registry node){
+    private static void userInput(Registry node) throws IOException{
         Scanner scanner = new Scanner(System.in);
         while(true){
             String in = scanner.nextLine();
             String[] start = in.split(" ");
             switch (start[0]) {
                 case "list-messaging-nodes":
-                    System.out.println(node.NODE_LIST.print());
+                    System.out.println(NODE_LIST.print());
                     break;
                 case "list-weights":
                     System.out.println("tat");
@@ -88,7 +88,7 @@ public class Registry implements Node{
     public int    getRegPort() { return  -1;  }
 
     //First Arg = TCP Port to use for registry
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
         if(args.length != 1) {
             System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
             return;

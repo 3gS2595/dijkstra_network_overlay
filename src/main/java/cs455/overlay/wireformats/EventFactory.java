@@ -47,6 +47,10 @@ public class EventFactory{
                  new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
                  break;
             }
+            case Protocol.MESSAGING_NODES_WEIGHTS: {
+                System.out.println("WEIGHTS");
+                break;
+            }
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
                 break;
