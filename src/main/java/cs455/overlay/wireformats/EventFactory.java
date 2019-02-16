@@ -48,7 +48,7 @@ public class EventFactory{
                  break;
             }
             case Protocol.MESSAGING_NODES_WEIGHTS: {
-                System.out.println("WEIGHTS");
+                new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
                 break;
             }
             default:

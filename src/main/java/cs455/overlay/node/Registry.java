@@ -87,6 +87,9 @@ public class Registry implements Node{
     public String getRegAddr() { return "-1"; }
     public int    getRegPort() { return  -1;  }
 
+    public String    getKey() {return this.getAddr() + ":" + this.getPort(); }
+
+
     //First Arg = TCP Port to use for registry
     public static void main(String[] args) throws IOException{
         if(args.length != 1) {

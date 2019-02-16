@@ -85,12 +85,15 @@ public class MessagingNode implements Node{
     public void setNetwork(MessagingNodesList.Pair[] network){
         this.network = network;
         String print = "";
-        for (int i = 0; i < network.length; i++){
-            print = print.concat(network[i].getADDRESS() + ":"
+        for (int i = 0; i < network.length; i++) {
+            if (network[i] != null) {
+                print = print.concat(network[i].getADDRESS() + ":"
                     + network[i].getPORT() + "\n");
+            }
         }
         if (debug) {
             System.out.println("RECEIVED OVERLAY LIST\n" + print);
+
         }
     }
 
@@ -102,6 +105,8 @@ public class MessagingNode implements Node{
     public int    getPort() { return this.NODE_PORT; }
     public String getRegAddr() { return this.REGISTRY_HOST; }
     public int    getRegPort() { return this.REGISTRY_PORT; }
+    public String getKey() { return this.getAddr() + ":" + this.getPort(); }
+
 
     //First Arg  = registry's Host address
     //Second Arg = registry's port number

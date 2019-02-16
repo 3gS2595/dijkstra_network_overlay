@@ -84,7 +84,7 @@ public class OverlayCreator {
                     connectionKey = getKey(nodeList, curNode,2);
                     modifier += 2;
                 }
-                //CATCHES THE FIRST AND LAST CASE AND CONNECTS THEM
+                //CATCHES THE FIRST AND LAST NODES AND CONNECTS THEM
                 else {
                     int place;
                     if(curNode + 2 == nodeList.size())
