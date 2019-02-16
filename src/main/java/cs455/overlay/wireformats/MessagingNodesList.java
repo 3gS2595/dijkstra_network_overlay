@@ -62,7 +62,7 @@ public class MessagingNodesList implements Event{
         public String getADDRESS() { return ADDRESS; }
 
         //TOSTRING
-        private String toStr() {
+        public String toKey() {
             return this.getADDRESS() + ":" + this.getPORT();
         }
     }

@@ -15,100 +15,46 @@ import java.net.Socket;
 
 public class Register_Request implements Event {
 
-    //TODO DISABLE DEBUG TOGGLE
-    private boolean debug = true;
-    private byte[] marshaledBytes;
+    //SENDS REQUEST
+    public Register_Request(Node Node) throws IOException {
+        byte[][] messageBytes =  new byte[1][];
+        messageBytes[0] = Node.getKey().getBytes();
+        TCPSender.sendMessage(Node.getRegKey(), (byte)1, 1, messageBytes);
+    }
 
     //RECEIVES REQUEST
     Register_Request(byte[] marshaledBytes) throws IOException {
-        this.marshaledBytes = marshaledBytes;
-
-        //Incoming network info
-        String NODE_ADDRESS;
-        int NODE_PORT;
-
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
             new DataInputStream(new BufferedInputStream(baInputStream));
 
         //Throws away type data;
-        din.readByte();
+        din.read();
 
-        //Stores NODE's ADDRESS
+        //Intakes nodes info, ADDRESS in data[0], PORT in data[1]
         int identifierLength = din.readInt();
         byte[] identifierBytes = new byte[identifierLength];
         din.readFully(identifierBytes);
-        NODE_ADDRESS = new String(identifierBytes);
+        String raw = new String(identifierBytes);
+        String[] data = raw.split(":");
 
-        //Stores NODE's PORT
-        NODE_PORT = din.readInt();
+        String ADDRESS = data[0];
+        int PORT = Integer.parseInt(data[1]);
 
         //complete, cleans up
         baInputStream.close();
         din.close();
 
-        if(debug) {
-            System.out.println("REGISTER_REQUEST (RECEIVED)");
-            System.out.print("  (IP address: " + NODE_ADDRESS + ")");
-            System.out.print("(Port number: " + NODE_PORT + ")");
-            System.out.println();
-        }
-
         //REGISTERS THE NODE
-        String add = Registry.NODE_LIST.ADD_NODE(NODE_ADDRESS, NODE_PORT);
+        String response = Registry.NODE_LIST.ADD_NODE(ADDRESS, PORT);
+        System.out.println("reg");
 
         //SENDS REGISTER_RESPONSE
-        byte status = Byte.parseByte(add.substring(0,1));
-        String info = add.substring(1);
-        new Register_Response(NODE_ADDRESS, NODE_PORT, status, info);
+        byte status = Byte.parseByte(response.substring(0,1));
+        new Register_Response(ADDRESS, PORT, response);
     }
 
-    //SENDS REQUEST
-    public Register_Request(Node Node) throws IOException {
-
-        //creates socket to server
-        Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
-        TCPSender sender = new TCPSender(REG_SOCKET);
-
-        //creates Request message byte array
-        byte[] marshalledBytes;
-
-        //Initialize used streams
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout =
-            new DataOutputStream(new BufferedOutputStream(baOutputStream));
-
-        //insert the register request protocol
-        dout.writeByte(1);
-
-        //insert the Address
-        byte[] ADDRESS = (Node.getAddr()).getBytes();
-        int elementLength = ADDRESS.length;
-        dout.writeInt(elementLength);
-        dout.write(ADDRESS);
-
-        //Inserts the Port
-        dout.writeInt(Node.getPort());
-
-        //records payload and cleans up
-        dout.flush();
-        marshalledBytes = baOutputStream.toByteArray();
-        baOutputStream.close();
-        dout.close();
-
-        //sends the request
-        sender.sendData(marshalledBytes);
-
-        if(debug) {
-            System.out.println("REGISTER_REQUEST (SENT)");
-            System.out.print("  (IP address: " + Node.getAddr() + ")");
-            System.out.print("(Port number: " + Node.getPort() + ")");
-            System.out.println();
-        }
-    }
-
-    //GETTERS
-    public int getType(){ return 1; }
-    public byte[] getBytes(){ return this.marshaledBytes; }
+    public int getType(){ return 2; }
+    public byte[] getBytes(){ return null; }
 }

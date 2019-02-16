@@ -88,6 +88,8 @@ public class Registry implements Node{
     public int    getRegPort() { return  -1;  }
 
     public String    getKey() {return this.getAddr() + ":" + this.getPort(); }
+    public String    getRegKey() {return this.getAddr() + ":" + this.getPort(); }
+
 
 
     //First Arg = TCP Port to use for registry

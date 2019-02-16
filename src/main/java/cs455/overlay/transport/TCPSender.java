@@ -1,6 +1,5 @@
 package cs455.overlay.transport;
 
-import cs455.overlay.transport.TCPSender;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -38,7 +37,8 @@ public class TCPSender {
 		//insert the deregister request protocol
 		dout.writeByte(type);
 
-		dout.writeInt(numEntries);
+		if(numEntries > 1)
+		    dout.writeInt(numEntries);
 
 		for(int i = 0; i < message.length; i++) {
 		    if(message[i] != null) {
@@ -46,7 +46,6 @@ public class TCPSender {
                 dout.write(message[i]);
             }
 		}
-
 
 		dout.flush();
 		marshaledBytes = baOutputStream.toByteArray();

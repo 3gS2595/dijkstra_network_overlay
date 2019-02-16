@@ -65,38 +65,9 @@ public class Deregister_Request implements Event {
 
     //SENDS REQUEST
     public Deregister_Request(Node Node) throws IOException {
-
-        //creates socket to server
-        Socket REG_SOCKET = new Socket(Node.getRegAddr(), Node.getRegPort());
-        TCPSender sender = new TCPSender(REG_SOCKET);
-
-        //creates Request message byte array
-        byte[] marshaledBytes;
-
-        //Initialize used streams
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout =
-            new DataOutputStream(new BufferedOutputStream(baOutputStream));
-
-        //insert the deregister request protocol
-        dout.writeByte(3);
-
-        //insert the Address then the port of the node
-        byte[] ADDRESS = (Node.getAddr()).getBytes();
-        int elementLength = ADDRESS.length;
-        dout.writeInt(elementLength);
-        dout.write(ADDRESS);
-        dout.writeInt(Node.getPort());
-
-        //records payload and cleans up
-        dout.flush();
-        marshaledBytes = baOutputStream.toByteArray();
-        baOutputStream.close();
-        dout.close();
-
-        //sends request
-        sender.sendData(marshaledBytes);
-        REG_SOCKET.close();
+        byte[][] messageBytes =  new byte[1][];
+        messageBytes[0] = Node.getKey().getBytes();
+        TCPSender.sendMessage(Node.getRegKey(), (byte)3, 1, messageBytes);
 
         if(debug) {
             System.out.println("DEREGISTER_REQUEST (SENT)");

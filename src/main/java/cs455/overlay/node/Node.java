@@ -31,9 +31,8 @@ public interface Node {
     }
 
     String getKey();
+    String getRegKey();
     //getters
-    String getRegAddr();
-    int getRegPort();
     String getAddr();
     int getPort();
 
