@@ -27,7 +27,7 @@ public class MessagingNodesList implements Event{
     }
 
     String ADD_NODE(String ADDRESS, int PORT){
-        String key = ADDRESS + " " + PORT;
+        String key = ADDRESS + ":" + PORT;
         if(!NODE_REGISTRY_ARRAY.containsKey(key)){
             NODE_REGISTRY_ARRAY.put(key, new Pair(PORT, ADDRESS));
             return "1NODE REGISTERED";
@@ -36,7 +36,7 @@ public class MessagingNodesList implements Event{
     }
 
     String REM_NODE(String ADDRESS, int PORT){
-        String key = ADDRESS + " " + PORT;
+        String key = ADDRESS + ":" + PORT;
         if(this.NODE_REGISTRY_ARRAY.containsKey(key)){
             this.NODE_REGISTRY_ARRAY.remove(key);
             return "1NODE DEREGISTERED";
@@ -63,7 +63,7 @@ public class MessagingNodesList implements Event{
 
         //TOSTRING
         private String toStr() {
-            return this.getADDRESS() + " " + this.getPORT();
+            return this.getADDRESS() + ":" + this.getPORT();
         }
     }
 
