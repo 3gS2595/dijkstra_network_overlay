@@ -6,12 +6,16 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MessagingNodesList implements Event{
 
     //TODO REMOVE DEBUG
     boolean debug = true;
+
+    public MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
+    public ArrayList<String> OVERLAY_CONNECTION_WEIGHTS = new ArrayList<>();
 
     //Hash map that houses all the node information
     //Each entry will include SERVER_ADDRESS and PORT
@@ -45,7 +49,12 @@ public class MessagingNodesList implements Event{
     }
 
     public String print(){
-        return NODE_REGISTRY_ARRAY.toString();
+        String ret = "";
+        for (String cur : NODE_REGISTRY_ARRAY.keySet()){
+            ret += cur + "\n";
+        }
+        ret = (ret.substring(0, (ret.length()-1)));
+        return ret;
     }
 
     public class Pair{
@@ -70,8 +79,6 @@ public class MessagingNodesList implements Event{
     //RECEIVES OVERLAY REQUEST
     //Assigns given list to the node, array stored in messagingNode node
     public MessagingNodesList(byte[] marshaledBytes, MessagingNode node) throws IOException {
-        MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
-        MessagingNodesList.Pair[] OVERLAY_CONNECTION_WEIGHTS;
         this.marshaledBytes = marshaledBytes;
 
         //Incoming network info
@@ -88,7 +95,6 @@ public class MessagingNodesList implements Event{
 
         int arrayLength = din.readInt();
         OVERLAY_CONNECTION_NODES = new MessagingNodesList.Pair[arrayLength];
-        OVERLAY_CONNECTION_WEIGHTS = new MessagingNodesList.Pair[arrayLength];
 
         if (type == 5) {
             //creates sized array for overlay nodes
@@ -104,7 +110,6 @@ public class MessagingNodesList implements Event{
 
                 //inserts node into array
                 OVERLAY_CONNECTION_NODES[i] = new Pair(NODE_PORT, NODE_ADDRESS);
-
             }
         } else if (type == 6) {
             //creates sized array for overlay nodes
@@ -125,8 +130,7 @@ public class MessagingNodesList implements Event{
                 int weight = Integer.parseInt(nodeData[2]);
 
                 if(node.getKey().equals(nodeData[0]) || node.getKey().equals(nodeData[1])){
-                    System.out.println(raw);
-                    //OVERLAY_CONNECTION_WEIGHTS[i] = new Pair(NODE_PORT, NODE_ADDRESS);
+                    OVERLAY_CONNECTION_WEIGHTS.add(raw);
                 }
 
             }
@@ -139,9 +143,19 @@ public class MessagingNodesList implements Event{
         if(type == 5) {
             node.setNetwork(OVERLAY_CONNECTION_NODES);
         }
+        if(type == 6) {
+            node.setNetworkWeights(OVERLAY_CONNECTION_WEIGHTS);
+        }
         //SENDS DEREGISTER_RESPONSE
         //new Deregister_Response(NODE_ADDRESS, NODE_PORT, status, info);
     }
+
+    public String listWeights(){
+
+        return null;
+    }
+
+
     public int getType(){
         return 5;
     }

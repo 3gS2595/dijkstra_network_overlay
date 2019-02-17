@@ -32,7 +32,7 @@ public class EventFactory{
         //Routes all incoming messages
         switch(type) {
             case Protocol.REGISTER_REQ:
-                 new Register_Request(marshaledBytes);
+                 new Register_Request(marshaledBytes, this.node);
                  break;
             case Protocol.REGISTER_RES:
                  new Register_Response(marshaledBytes);

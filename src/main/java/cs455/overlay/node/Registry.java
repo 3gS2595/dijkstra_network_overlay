@@ -17,6 +17,7 @@ public class Registry implements Node{
     //Registry's network information
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
+    public  final static int[] IS_SETUP = new int[1];
 
     //The only EventFactory Instance
     public final static EventFactory Factory = new EventFactory();
@@ -65,14 +66,18 @@ public class Registry implements Node{
                     System.out.println("tat");
                     break;
                 case "setup":
+                    IS_SETUP[0] = 1;
                     new OverlayCreator(Integer.parseInt(start[1]));
                     break;
                 case "send-overlay-link-weights":
+                    break;
+                case "start":
                     break;
                 default:
                     System.out.println("command not recognized");
                     break;
             }
+            System.out.println();
         }
     }
 
@@ -94,6 +99,7 @@ public class Registry implements Node{
 
     //First Arg = TCP Port to use for registry
     public static void main(String[] args) throws IOException{
+        IS_SETUP[0] = 0;
         if(args.length != 1) {
             System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
             return;

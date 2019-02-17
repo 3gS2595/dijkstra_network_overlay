@@ -1,5 +1,6 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPSender;
@@ -16,14 +17,18 @@ import java.net.Socket;
 public class Register_Request implements Event {
 
     //SENDS REQUEST
-    public Register_Request(Node Node) throws IOException {
+    public Register_Request(Node Node, String key) throws IOException {
         byte[][] messageBytes =  new byte[1][];
         messageBytes[0] = Node.getKey().getBytes();
-        TCPSender.sendMessage(Node.getRegKey(), (byte)1, 1, messageBytes);
+        if(key == null)
+            TCPSender.sendMessage(Node.getRegKey(), (byte)1, 1, messageBytes);
+        else {
+            TCPSender.sendMessage(key, (byte) 1, 1, messageBytes);
+        }
     }
 
     //RECEIVES REQUEST
-    Register_Request(byte[] marshaledBytes) throws IOException {
+    Register_Request(byte[] marshaledBytes, Node node) throws IOException {
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
@@ -47,12 +52,19 @@ public class Register_Request implements Event {
         din.close();
 
         //REGISTERS THE NODE
-        String response = Registry.NODE_LIST.ADD_NODE(ADDRESS, PORT);
-        System.out.println("reg");
+        //TODO CLEAN UP AND MAKE RESPONSE WORK AND REPOT STATUS
+        String response = "";
+        if(!node.isMessenger()) {
+            response = Registry.NODE_LIST.ADD_NODE(ADDRESS, PORT);
+            //SENDS REGISTER_RESPONSE
+            new Register_Response(ADDRESS, PORT, response);
+        }
+        else {
+            MessagingNode messager = (MessagingNode)node;
+            messager.addConnection(ADDRESS + ":" + PORT);
+        }
 
-        //SENDS REGISTER_RESPONSE
-        byte status = Byte.parseByte(response.substring(0,1));
-        new Register_Response(ADDRESS, PORT, response);
+
     }
 
     public int getType(){ return 2; }

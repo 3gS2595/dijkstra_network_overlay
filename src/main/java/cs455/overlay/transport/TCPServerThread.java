@@ -1,27 +1,25 @@
 package cs455.overlay.transport;
 
-//This is the server program.
 import cs455.overlay.node.Node;
 import cs455.overlay.wireformats.Register_Request;
 
-import java.io.*;
-import java.net.*;
-import java.lang.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class TCPServerThread implements Runnable{
-    public Integer OUR_PORT;
-    public Node    Node;
-    public ServerSocket serverSocket = null;
+    private Integer OUR_PORT;
+    private Node    Node;
 
     public void run(){
         try {
             //Create the server socket
-            Integer NUM_POSSIBLE_CONNECTIONS = 11;
-            this.serverSocket = new ServerSocket(OUR_PORT, NUM_POSSIBLE_CONNECTIONS);
+            int NUM_POSSIBLE_CONNECTIONS = 11;
+            ServerSocket serverSocket = new ServerSocket(OUR_PORT, NUM_POSSIBLE_CONNECTIONS);
 
             //Register's node with registry (MessengerNode)
-            if (Node.isMessenger() == true) {
-                new Register_Request(this.Node);
+            if (Node.isMessenger()) {
+                new Register_Request(this.Node, null);
             }
 
             //Loop should continue indefinitely
@@ -35,13 +33,9 @@ public class TCPServerThread implements Runnable{
                 Thread ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket, this.Node));
                 ReceiverThread.start();
             }
-            //clean up
-            incomingConnectionSocket.close();
-            serverSocket.close();
 
-        } catch (SocketException se) {
-            System.out.println(se.getMessage());
-            System.exit(1);
+            //clean up
+            serverSocket.close();
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
             System.exit(1);
