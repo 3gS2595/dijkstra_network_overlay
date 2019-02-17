@@ -128,7 +128,7 @@ public class OverlayCreator {
                 Random rn = new Random();
                 String notationString = (thisKey +
                     " " + messenger.toKey() +
-                    " " + rn.nextInt(10) + 1);
+                    " " + rn.nextInt((10) + 1));
                 byte[] data = notationString.getBytes();
                 weightBytes[wnum] = data;
                 wnum++;

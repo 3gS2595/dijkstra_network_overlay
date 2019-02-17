@@ -3,16 +3,19 @@ package cs455.overlay.node;
 import cs455.overlay.transport.*;
 import cs455.overlay.wireformats.Deregister_Request;
 import cs455.overlay.wireformats.MessagingNodesList;
+import cs455.overlay.wireformats.Register_Request;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MessagingNode implements Node{
 
     //TODO DISABLE DEBUG TOGGLE
     private boolean debug = true;
-    private MessagingNodesList.Pair[] network;
+    private ArrayList<String> networkConnections = new ArrayList<>();
+    private ArrayList<String> networkWeights = new ArrayList<>();
 
     //Registry's network information
     private String  REGISTRY_HOST;
@@ -22,12 +25,11 @@ public class MessagingNode implements Node{
     private String  NODE_HOST;
     private Integer NODE_PORT;
 
+
     //CONSTRUCTOR
     private MessagingNode(String REGHOST, int REGPORT){
         this.REGISTRY_HOST = REGHOST;
         this.REGISTRY_PORT = REGPORT;
-
-
 
         //Initializes the TCPServerThread
         try {
@@ -65,6 +67,9 @@ public class MessagingNode implements Node{
                 case "exit-overlay":
                     node.terminateNode();
                     break;
+                case "tom":
+                    System.out.println(networkConnections.size());
+                    break;
                 default:
                     System.out.println("command not recognized");
                     break;
@@ -82,35 +87,30 @@ public class MessagingNode implements Node{
     }
 
     //INTAKES GIVEN NETWORK OVERLAY
-    public void setNetwork(MessagingNodesList.Pair[] network){
-        this.network = network;
-        String print = "";
-        for (int i = 0; i < network.length; i++) {
-            if (network[i] != null) {
-                print = print.concat(network[i].getADDRESS() + ":"
-                    + network[i].getPORT() + "\n");
-            }
-        }
-        if (debug) {
-            System.out.println("RECEIVED OVERLAY LIST\n" + print);
-
+    public void setNetwork(MessagingNodesList.Pair[] network) throws IOException{
+        System.out.println("NETWORK");
+        for(MessagingNodesList.Pair temp : network){
+            System.out.println(temp.toKey());
+            this.networkConnections.add(temp.toKey());
+            new Register_Request(this, temp.toKey());
         }
     }
 
     //INTAKES GIVEN NETWORK OVERLAY
-    public void setWeights(MessagingNodesList.Pair[] network){
-        this.network = network;
-        String print = "";
-        for (int i = 0; i < network.length; i++) {
-            if (network[i] != null) {
-                print = print.concat(network[i].getADDRESS() + ":"
-                    + network[i].getPORT() + "\n");
-            }
+    public void setNetworkWeights(ArrayList<String> connectionWeights){
+        this.networkWeights = connectionWeights;
+        System.out.println("WEIGHTS");
+        for (String temp : connectionWeights){
+            String[] tempA = temp.split(" ");
+            if (!tempA[0].equals(getKey()))
+                System.out.println(tempA[0] + " " + tempA[2]);
+            if (!tempA[1].equals(getKey()))
+                System.out.println(tempA[1] + " " + tempA[2]);
         }
-        if (debug) {
-            System.out.println("RECEIVED OVERLAY LIST\n" + print);
+    }
 
-        }
+    public void addConnection(String key){
+        this.networkConnections.add(key);
     }
 
     //IDENTIFICATION
@@ -123,7 +123,6 @@ public class MessagingNode implements Node{
     public int    getRegPort() { return this.REGISTRY_PORT; }
     public String getKey() { return this.getAddr() + ":" + this.getPort(); }
     public String getRegKey() { return this.getRegAddr() + ":" + this.getRegPort(); }
-
 
     //First Arg  = registry's Host address
     //Second Arg = registry's port number
