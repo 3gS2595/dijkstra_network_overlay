@@ -52,6 +52,7 @@ public class Registry implements Node{
         }
     }
 
+    //TODO SET TASK_INITIATE TO START MESSAGING NODES TALKING
     //USER COMMAND INPUT
     private static void userInput(Registry node) throws IOException{
         Scanner scanner = new Scanner(System.in);

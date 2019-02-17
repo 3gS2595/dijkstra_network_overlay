@@ -1,6 +1,7 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.*;
+import cs455.overlay.util.DijkstrasPath;
 import cs455.overlay.wireformats.Deregister_Request;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Register_Request;
@@ -102,11 +103,9 @@ public class MessagingNode implements Node{
         System.out.println("WEIGHTS");
         for (String temp : connectionWeights){
             String[] tempA = temp.split(" ");
-            if (!tempA[0].equals(getKey()))
-                System.out.println(tempA[0] + " " + tempA[2]);
-            if (!tempA[1].equals(getKey()))
-                System.out.println(tempA[1] + " " + tempA[2]);
+            System.out.println(tempA[0] + " " + tempA[1] + " " + tempA[2]);
         }
+        new DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
     }
 
     public void addConnection(String key){

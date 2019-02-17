@@ -129,10 +129,8 @@ public class MessagingNodesList implements Event{
                 int NODE_PORT2 = Integer.parseInt(node2[1]);
                 int weight = Integer.parseInt(nodeData[2]);
 
-                if(node.getKey().equals(nodeData[0]) || node.getKey().equals(nodeData[1])){
-                    OVERLAY_CONNECTION_WEIGHTS.add(raw);
-                }
-
+                //add connection weight
+                OVERLAY_CONNECTION_WEIGHTS.add(raw);
             }
         }
 
