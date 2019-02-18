@@ -103,9 +103,13 @@ public class MessagingNode implements Node{
         System.out.println("WEIGHTS");
         for (String temp : connectionWeights){
             String[] tempA = temp.split(" ");
-            System.out.println(tempA[0] + " " + tempA[1] + " " + tempA[2]);
         }
-        new DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
+        DijkstrasPath temp = new DijkstrasPath();
+        String[] path = temp.DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
+        System.out.println();
+        for(String key : path){
+            System.out.println(key);
+        }
     }
 
     public void addConnection(String key){

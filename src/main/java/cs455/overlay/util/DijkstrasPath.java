@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DijkstrasPath {
-    public DijkstrasPath(ArrayList<String> connectionWeights, String sourceKey, String destKey) {
+    public String[] DijkstrasPath(ArrayList<String> connectionWeights, String sourceKey, String destKey) {
         HashMap<String, Integer> dist = new HashMap<>();
+        HashMap<String, String> path = new HashMap<>();
+
         dist.put(sourceKey, 0);
 
         ArrayList<String> queue = new ArrayList<>();
         queue.add(sourceKey);
 
-        ArrayList<String> queue2 = new ArrayList<>();
+        ArrayList<String> queue2;
 
 
         //sets all non connected nodes to 1000000 (infinte?)
@@ -37,7 +39,6 @@ public class DijkstrasPath {
                 }
             }
             //for each neighbor of minimum weight
-            System.out.println(queue.get(min));
             String v = queue.remove(min);
 
             for (String temp : connectionWeights) {
@@ -47,21 +48,32 @@ public class DijkstrasPath {
                     int alt = dist.get(v) + Integer.parseInt(u[2]);
                     if (alt < dist.get(u[1])) {
                         dist.replace(u[1], alt);
+                        path.put(u[1], v);
                     }
-                    System.out.println(alt);
-
                 }
                 if (u[1].equals(v)) {
                     int alt = dist.get(v) + Integer.parseInt(u[2]);
                     if (alt < dist.get(u[0])) {
                         dist.replace(u[0], alt);
+                        path.put(u[0], v);
                     }
-                    System.out.println(alt);
-
                 }
             }
         }
-        for(int i = 0; i < queue2.size(); i ++)
-            System.out.println(queue2.get(i) + " " + dist.get(queue2.get(i)));
+        String pathString = getPath(path, "lazer-VirtualBox:1026", sourceKey);
+        String[] reversed = pathString.split(" ");
+        String[] parsed= new String[reversed.length];
+        int i = parsed.length -1;
+        for (String temp : reversed){
+            parsed[i] = temp;
+            i--;
+        }
+        return parsed;
+    }
+
+    private String getPath( HashMap<String, String> record, String key, String Source){
+        if (key == Source)
+            return (key);
+        return (key  + " " + getPath(record, record.get(key), Source));
     }
 }
