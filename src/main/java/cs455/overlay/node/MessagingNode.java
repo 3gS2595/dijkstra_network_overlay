@@ -1,5 +1,6 @@
 package cs455.overlay.node;
 
+import cs455.overlay.dijkstra.ShortestPath;
 import cs455.overlay.transport.*;
 import cs455.overlay.util.DijkstrasPath;
 import cs455.overlay.wireformats.Deregister_Request;
@@ -10,6 +11,7 @@ import cs455.overlay.wireformats.TaskInitiate;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class MessagingNode implements Node{
@@ -122,8 +124,46 @@ public class MessagingNode implements Node{
     //IDENTIFICATION
     public boolean isMessenger(){ return true; }
 
-    public void taskInitiate(){ }
+    public void taskInitiate(int rounds) throws IOException{
+        Random rn = new Random();
+        ArrayList<String> temp = new ArrayList<>();
+        for (String connection :networkWeights){
+            String[] keys = connection.split(" ");
+            if(!temp.contains(keys[0]))
+                temp.add(keys[0]);
+            if(!temp.contains(keys[1]))
+                temp.add(keys[1]);
+        }
+        for(int i = 0; i < rounds;i++) {
+            //picks random node to send to
+            int node = rn.nextInt((temp.size() - 1) + 1);
+            while (temp.get(node).contentEquals(this.getKey())) {
+                System.out.println(temp.get(node));
+                System.out.println(this.getKey());
+                node = rn.nextInt((temp.size() - 1) + 1);
+            }
+            DijkstrasPath finder = new DijkstrasPath();
+            String path = finder.DijkstrasPath(networkConnections, this.getKey(), temp.get(node));
+            String[] dest = path.split(" ");
+            String nextPath = "";
+            for (int x = 1; x < dest.length; x++){
+                nextPath += dest[x];
+            }
+            byte[] payload = toByteArray(rn.nextInt());
+            byte[][] messageBytes = new byte[2][];
+            messageBytes[0] = payload;
+            messageBytes[1] = nextPath.getBytes();
+            TCPSender.sendMessage(dest[0], (byte) 9, 1, messageBytes);
+        }
+    }
 
+    byte[] toByteArray(int value) {
+        return new byte[] {
+            (byte)(value >> 24),
+            (byte)(value >> 16),
+            (byte)(value >> 8),
+            (byte)value };
+    }
 
     //GETTERS
     public String getAddr() { return this.NODE_HOST; }

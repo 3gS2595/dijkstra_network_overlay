@@ -10,8 +10,6 @@ import cs455.overlay.wireformats.TaskInitiate;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 import java.util.Scanner;
 
 
@@ -75,7 +73,10 @@ public class Registry implements Node{
                 //TODO REGISTRY NEEDS TO CHECK OVERLAY
                 case "setup-overlay":
                     OverlayCreator overlay = new OverlayCreator();
-                    setNetwork(overlay.OverlayCreate(Integer.parseInt(start[1]), 1));
+                    int size = 4;
+                    if (start.length != 1)
+                        size = Integer.parseInt(start[1]);
+                    setNetwork(overlay.OverlayCreate(size, 1));
                     break;
                 case "send-overlay-link-weights":
                     sendWeights();

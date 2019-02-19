@@ -50,7 +50,7 @@ public class EventFactory{
                 new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
                 break;
             case Protocol.TASK_INITIATE:
-                //this.node.taskInitiate();
+                new TaskInitiate(marshaledBytes, (MessagingNode)this.node);
                 break;
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");

@@ -14,26 +14,31 @@ public class MessagingNodesList implements Event{
     //TODO REMOVE DEBUG
     boolean debug = true;
 
-    public MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
-    public ArrayList<String> OVERLAY_CONNECTION_WEIGHTS = new ArrayList<>();
+    private MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
+    private ArrayList<String> OVERLAY_CONNECTION_WEIGHTS = new ArrayList<>();
 
     //Hash map that houses all the node information
     //Each entry will include SERVER_ADDRESS and PORT
     //Key is the node's SERVER_ADDRESS
     public HashMap<String, Pair> NODE_REGISTRY_ARRAY = new HashMap<>();
+    public ArrayList<String> nodes = new ArrayList<>();
+
     private byte[] marshaledBytes;
 
     //CONSTRUCTOR
     public MessagingNodesList(){}
 
     public int size(){
-        return NODE_REGISTRY_ARRAY.size();
+
+        System.out.println(nodes.size());
+        return nodes.size();
     }
 
     String ADD_NODE(String ADDRESS, int PORT){
         String key = ADDRESS + ":" + PORT;
         if(!NODE_REGISTRY_ARRAY.containsKey(key)){
             NODE_REGISTRY_ARRAY.put(key, new Pair(PORT, ADDRESS));
+            nodes.add(key);
             return "1NODE REGISTERED";
         }
         return "0NODE ALREADY REGISTERED";
@@ -143,7 +148,6 @@ public class MessagingNodesList implements Event{
 
         return null;
     }
-
 
     public int getType(){
         return 5;

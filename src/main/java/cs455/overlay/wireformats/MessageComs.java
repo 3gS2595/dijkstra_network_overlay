@@ -17,14 +17,12 @@ import java.net.Socket;
 public class MessageComs implements Event {
 
     //SENDS REQUEST
-    public MessageComs(Node Node, String key, String[] path) throws IOException {
+    public MessageComs(Node Node, String[] path) throws IOException {
         byte[][] messageBytes =  new byte[1][];
         messageBytes[0] = Node.getKey().getBytes();
-        if(key == null)
-            TCPSender.sendMessage(Node.getRegKey(), (byte)1, 1, messageBytes);
-        else {
-            TCPSender.sendMessage(key, (byte) 1, 1, messageBytes);
-        }
+
+        TCPSender.sendMessage(path[0], (byte) 1, 1, messageBytes);
+
     }
 
     //RECEIVES REQUEST

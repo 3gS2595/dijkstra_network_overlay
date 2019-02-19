@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DijkstrasPath {
-    public String[] DijkstrasPath(ArrayList<String> connectionWeights, String sourceKey, String destKey) {
+    public DijkstrasPath() {}
+
+    public String DijkstrasPath(ArrayList<String> connectionWeights, String sourceKey, String destKey) {
         HashMap<String, Integer> dist = new HashMap<>();
         HashMap<String, String> path = new HashMap<>();
 
@@ -68,7 +70,7 @@ public class DijkstrasPath {
             parsed[i] = temp;
             i--;
         }
-        return parsed;
+        return pathString;
     }
 
     private String getPath( HashMap<String, String> record, String key, String Source){
