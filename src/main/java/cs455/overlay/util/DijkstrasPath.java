@@ -44,6 +44,7 @@ public class DijkstrasPath {
             String v = queue.remove(min);
 
             for (String temp : connectionWeights) {
+                //System.out.println(temp);
                 String[] u = temp.split(" ");
                 //if neighbor
                 if (u[0].equals(v)) {
@@ -63,14 +64,14 @@ public class DijkstrasPath {
             }
         }
         String pathString = getPath(path, destKey, sourceKey);
-        String[] reversed = pathString.split(" ");
-        String[] parsed= new String[reversed.length];
+        String[] parsed = pathString.split(" ");
+        String reversed = " ";
         int i = parsed.length -1;
-        for (String temp : reversed){
-            parsed[i] = temp;
+        for (String temp : parsed){
+            reversed += parsed[i] + " ";
             i--;
         }
-        return pathString;
+        return reversed;
     }
 
     private String getPath( HashMap<String, String> record, String key, String Source){

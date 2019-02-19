@@ -71,14 +71,14 @@ public class Registry implements Node{
                     break;
 
                 //TODO REGISTRY NEEDS TO CHECK OVERLAY
-                case "setup-overlay":
+                case "setup":
                     OverlayCreator overlay = new OverlayCreator();
                     int size = 4;
                     if (start.length != 1)
                         size = Integer.parseInt(start[1]);
                     setNetwork(overlay.OverlayCreate(size, 1));
                     break;
-                case "send-overlay-link-weights":
+                case "send":
                     sendWeights();
                     break;
                 case "start":

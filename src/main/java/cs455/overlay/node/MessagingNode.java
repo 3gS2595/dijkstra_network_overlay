@@ -63,23 +63,27 @@ public class MessagingNode implements Node{
     //USER INPUT
     private void userInput(MessagingNode node){
         //USER COMMAND INPUT
-        Scanner scanner = new Scanner(System.in);
-        while(true){
-            String in = scanner.nextLine();
-            switch (in) {
-                case "print-shortest-path":
-                    System.out.println("tat");
-                    break;
-                case "exit-overlay":
-                    node.terminateNode();
-                    break;
-                case "tom":
-                    System.out.println(networkConnections.size());
-                    break;
-                default:
-                    System.out.println("command not recognized");
-                    break;
+        try {
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String in = scanner.nextLine();
+                switch (in) {
+                    case "print-shortest-path":
+                        System.out.println("tat");
+                        break;
+                    case "exit-overlay":
+                        node.terminateNode();
+                        break;
+                    case "tom":
+                        this.taskInitiate(1);
+                        break;
+                    default:
+                        System.out.println("command not recognized");
+                        break;
+                }
             }
+        }catch (IOException e){
+
         }
     }
 
@@ -125,7 +129,7 @@ public class MessagingNode implements Node{
     public boolean isMessenger(){ return true; }
 
     public void taskInitiate(int rounds) throws IOException{
-        Random rn = new Random();
+        Random rn = new Random(System.currentTimeMillis());
         ArrayList<String> temp = new ArrayList<>();
         for (String connection :networkWeights){
             String[] keys = connection.split(" ");
@@ -138,22 +142,22 @@ public class MessagingNode implements Node{
             //picks random node to send to
             int node = rn.nextInt((temp.size() - 1) + 1);
             while (temp.get(node).contentEquals(this.getKey())) {
-                System.out.println(temp.get(node));
-                System.out.println(this.getKey());
                 node = rn.nextInt((temp.size() - 1) + 1);
             }
             DijkstrasPath finder = new DijkstrasPath();
-            String path = finder.DijkstrasPath(networkConnections, this.getKey(), temp.get(node));
+            String path = finder.DijkstrasPath(networkWeights, this.getKey(), temp.get(node));
             String[] dest = path.split(" ");
             String nextPath = "";
             for (int x = 1; x < dest.length; x++){
-                nextPath += dest[x];
+                nextPath += dest[x] + " ";
             }
-            byte[] payload = toByteArray(rn.nextInt());
+            int rando = rn.nextInt();
+            byte[] payload = toByteArray(rando);
             byte[][] messageBytes = new byte[2][];
             messageBytes[0] = payload;
             messageBytes[1] = nextPath.getBytes();
-            TCPSender.sendMessage(dest[0], (byte) 9, 1, messageBytes);
+
+            TCPSender.sendMessage(dest[2], (byte) 9, -5, messageBytes);
         }
     }
 

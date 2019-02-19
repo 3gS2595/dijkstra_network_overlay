@@ -1,68 +1,60 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.MessagingNode;
-import cs455.overlay.node.Registry;
-import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPSender;
 
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.BufferedOutputStream;
-import java.net.Socket;
+import java.util.Random;
 
 public class MessageComs implements Event {
 
-    //SENDS REQUEST
-    public MessageComs(Node Node, String[] path) throws IOException {
-        byte[][] messageBytes =  new byte[1][];
-        messageBytes[0] = Node.getKey().getBytes();
-
-        TCPSender.sendMessage(path[0], (byte) 1, 1, messageBytes);
-
-    }
-
     //RECEIVES REQUEST
-    MessageComs(byte[] marshaledBytes, Node node) throws IOException {
+    MessageComs(byte[] marshaledBytes) throws IOException {
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
             new DataInputStream(new BufferedInputStream(baInputStream));
 
+        byte type = din.readByte();
         //Throws away type data;
-        din.read();
+        int Payload = din.readInt();
 
-        //Intakes nodes info, ADDRESS in data[0], PORT in data[1]
-        int identifierLength = din.readInt();
-        byte[] identifierBytes = new byte[identifierLength];
-        din.readFully(identifierBytes);
-        String raw = new String(identifierBytes);
-        String[] data = raw.split(":");
-
-        String ADDRESS = data[0];
-        int PORT = Integer.parseInt(data[1]);
+        int length = din.readInt();
+        if(length > 0) {
+            byte[] path = new byte[length];
+            din.read(path);
+            String raw = new String(path);
+            String newPath = "";
+            String[] data = raw.split(" ");
+            for (int i = 1; i < data.length;i++) {
+                newPath += data[i] + " ";
+            }
+            if(data.length != 1) {
+                Random rn = new Random(System.currentTimeMillis());
+                int rando = rn.nextInt();
+                byte[] payload = toByteArray(rando);
+                byte[][] messageBytes = new byte[2][];
+                messageBytes[0] = payload;
+                messageBytes[1] = newPath.getBytes();
+                TCPSender.sendMessage(data[1], (byte) 9, -5, messageBytes);
+            }else {
+                System.out.println("DO YOU NOW DE WEY");
+            }
+        }
 
         //complete, cleans up
         baInputStream.close();
         din.close();
+    }
 
-        //REGISTERS THE NODE
-        //TODO CLEAN UP AND MAKE RESPONSE WORK AND REPOT STATUS
-        String response = "";
-        if(!node.isMessenger()) {
-            response = Registry.NODE_LIST.ADD_NODE(ADDRESS, PORT);
-            //SENDS REGISTER_RESPONSE
-            new Register_Response(ADDRESS, PORT, response);
-        }
-        else {
-            MessagingNode messager = (MessagingNode)node;
-            //messager.addConnection(ADDRESS + ":" + PORT);
-        }
-
-
+    byte[] toByteArray(int value) {
+        return new byte[] {
+            (byte)(value >> 24),
+            (byte)(value >> 16),
+            (byte)(value >> 8),
+            (byte)value };
     }
 
     public int getType(){ return 2; }

@@ -24,7 +24,6 @@ public class TaskInitiate {
 
     //RECEIVES REQUEST
     public TaskInitiate(byte[] marshaledBytes, MessagingNode node) throws IOException {
-        System.out.println("HI");
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
