@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DijkstrasPath {
-    public String[] DijkstrasPath(ArrayList<String> connectionWeights, String sourceKey, String destKey) {
+    public DijkstrasPath() {}
+
+    public String DijkstrasPath(ArrayList<String> connectionWeights, String sourceKey, String destKey) {
         HashMap<String, Integer> dist = new HashMap<>();
         HashMap<String, String> path = new HashMap<>();
 
@@ -42,6 +44,7 @@ public class DijkstrasPath {
             String v = queue.remove(min);
 
             for (String temp : connectionWeights) {
+                //System.out.println(temp);
                 String[] u = temp.split(" ");
                 //if neighbor
                 if (u[0].equals(v)) {
@@ -60,15 +63,15 @@ public class DijkstrasPath {
                 }
             }
         }
-        String pathString = getPath(path, "lazer-VirtualBox:1026", sourceKey);
-        String[] reversed = pathString.split(" ");
-        String[] parsed= new String[reversed.length];
+        String pathString = getPath(path, destKey, sourceKey);
+        String[] parsed = pathString.split(" ");
+        String reversed = " ";
         int i = parsed.length -1;
-        for (String temp : reversed){
-            parsed[i] = temp;
+        for (String temp : parsed){
+            reversed += parsed[i] + " ";
             i--;
         }
-        return parsed;
+        return reversed;
     }
 
     private String getPath( HashMap<String, String> record, String key, String Source){

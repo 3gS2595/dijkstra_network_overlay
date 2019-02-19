@@ -41,16 +41,20 @@ public class EventFactory{
                  new Deregister_Request(marshaledBytes);
                  break;
             case Protocol.DEREGISTER_RES:
-                 new Deregister_Response(marshaledBytes);
+                 new Deregister_Response(marshaledBytes,(MessagingNode)this.node);
                  break;
-            case Protocol.MESSAGING_NODES_LIST: {
+            case Protocol.MESSAGING_NODES_LIST:
                  new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
                  break;
-            }
-            case Protocol.MESSAGING_NODES_WEIGHTS: {
+            case Protocol.MESSAGING_NODES_WEIGHTS:
                 new MessagingNodesList(marshaledBytes, (MessagingNode)this.node);
                 break;
-            }
+            case Protocol.TASK_INITIATE:
+                new TaskInitiate(marshaledBytes, (MessagingNode)this.node);
+                break;
+            case Protocol.DATA_MESSAGE:
+                new MessageComs(marshaledBytes);
+                break;
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");
                 break;

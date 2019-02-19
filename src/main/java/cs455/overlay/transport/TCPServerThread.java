@@ -24,13 +24,14 @@ public class TCPServerThread implements Runnable{
 
             //Loop should continue indefinitely
             Socket incomingConnectionSocket = null;
+            Thread ReceiverThread = null;
             while (!Thread.currentThread().isInterrupted()) {
                 //Block on accepting connections. Once it has received a connection it will return a socket for us to use.
                 incomingConnectionSocket = serverSocket.accept();
 
                 //If we get here we are no longer blocking, so we accepted a new connection
                 //create/initialize server thread
-                Thread ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket, this.Node));
+                ReceiverThread = new Thread(new TCPReceiverThread(incomingConnectionSocket, this.Node));
                 ReceiverThread.start();
             }
 

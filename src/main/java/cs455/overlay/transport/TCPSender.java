@@ -21,9 +21,9 @@ public class TCPSender {
 	}
 
 	public static void sendMessage(String key, int type, int numEntries, byte[][] message) throws IOException{
-        String[] temp = key.split(":");
-        String Address = temp[0];
-        int Port = (Integer.parseInt(temp[1]));
+        String[] splitKey = key.split(":");
+        String Address = splitKey[0];
+        int Port = (Integer.parseInt(splitKey[1]));
         Socket REG_SOCKET = new Socket(Address, Port);
         TCPSender sender = new TCPSender(REG_SOCKET);
 		///creates Request message byte array
@@ -37,15 +37,21 @@ public class TCPSender {
 		//insert the deregister request protocol
 		dout.writeByte(type);
 
-		if(numEntries > 1)
-		    dout.writeInt(numEntries);
-
-		for(int i = 0; i < message.length; i++) {
-		    if(message[i] != null) {
-                dout.writeInt(message[i].length);
-                dout.write(message[i]);
-            }
+		if(numEntries == -5){
+			dout.write(message[0]);
+			dout.writeInt((message[1].length));
+			dout.write(message[1]);
+		} else {
+			if (numEntries > 1)
+				dout.writeInt(numEntries);
+			for (int i = 0; i < message.length; i++) {
+				if (message[i] != null) {
+					dout.writeInt(message[i].length);
+					dout.write(message[i]);
+				}
+			}
 		}
+
     
 		dout.flush();
 		marshaledBytes = baOutputStream.toByteArray();

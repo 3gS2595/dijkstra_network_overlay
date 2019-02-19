@@ -1,14 +1,17 @@
 package cs455.overlay.node;
 
+import cs455.overlay.dijkstra.ShortestPath;
 import cs455.overlay.transport.*;
 import cs455.overlay.util.DijkstrasPath;
 import cs455.overlay.wireformats.Deregister_Request;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Register_Request;
+import cs455.overlay.wireformats.TaskInitiate;
 
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class MessagingNode implements Node{
@@ -25,6 +28,8 @@ public class MessagingNode implements Node{
     //MessengerNode's network information
     private String  NODE_HOST;
     private Integer NODE_PORT;
+
+    private static Boolean running = true;
 
 
     //CONSTRUCTOR
@@ -58,23 +63,27 @@ public class MessagingNode implements Node{
     //USER INPUT
     private void userInput(MessagingNode node){
         //USER COMMAND INPUT
-        Scanner scanner = new Scanner(System.in);
-        while(true){
-            String in = scanner.nextLine();
-            switch (in) {
-                case "print-shortest-path":
-                    System.out.println("tat");
-                    break;
-                case "exit-overlay":
-                    node.terminateNode();
-                    break;
-                case "tom":
-                    System.out.println(networkConnections.size());
-                    break;
-                default:
-                    System.out.println("command not recognized");
-                    break;
+        try {
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String in = scanner.nextLine();
+                switch (in) {
+                    case "print-shortest-path":
+                        System.out.println("tat");
+                        break;
+                    case "exit-overlay":
+                        node.terminateNode();
+                        break;
+                    case "tom":
+                        this.taskInitiate(1);
+                        break;
+                    default:
+                        System.out.println("command not recognized");
+                        break;
+                }
             }
+        }catch (IOException e){
+
         }
     }
 
@@ -83,13 +92,11 @@ public class MessagingNode implements Node{
             new Deregister_Request(this);
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
-            System.exit(1);
         }
     }
 
-    //INTAKES GIVEN NETWORK OVERLAY
+        //INTAKES GIVEN NETWORK OVERLAY
     public void setNetwork(MessagingNodesList.Pair[] network) throws IOException{
-        System.out.println("NETWORK");
         for(MessagingNodesList.Pair temp : network){
             System.out.println(temp.toKey());
             this.networkConnections.add(temp.toKey());
@@ -99,33 +106,78 @@ public class MessagingNode implements Node{
 
     //INTAKES GIVEN NETWORK OVERLAY
     public void setNetworkWeights(ArrayList<String> connectionWeights){
-        this.networkWeights = connectionWeights;
+        this.networkWeights = new ArrayList<>(connectionWeights);
         System.out.println("WEIGHTS");
         for (String temp : connectionWeights){
             String[] tempA = temp.split(" ");
+            System.out.println(temp);
         }
-        DijkstrasPath temp = new DijkstrasPath();
-        String[] path = temp.DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
-        System.out.println();
-        for(String key : path){
-            System.out.println(key);
-        }
+        //DijkstrasPath temp = new DijkstrasPath();
+        //String[] path = temp.DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
+        //System.out.println();
+        //for(String key : path){
+        //    System.out.println(key);
+        //}
     }
 
     public void addConnection(String key){
+        System.out.println(key);
         this.networkConnections.add(key);
     }
 
     //IDENTIFICATION
     public boolean isMessenger(){ return true; }
 
+    public void taskInitiate(int rounds) throws IOException{
+        Random rn = new Random(System.currentTimeMillis());
+        ArrayList<String> temp = new ArrayList<>();
+        for (String connection :networkWeights){
+            String[] keys = connection.split(" ");
+            if(!temp.contains(keys[0]))
+                temp.add(keys[0]);
+            if(!temp.contains(keys[1]))
+                temp.add(keys[1]);
+        }
+        for(int i = 0; i < rounds;i++) {
+            //picks random node to send to
+            int node = rn.nextInt((temp.size() - 1) + 1);
+            while (temp.get(node).contentEquals(this.getKey())) {
+                node = rn.nextInt((temp.size() - 1) + 1);
+            }
+            DijkstrasPath finder = new DijkstrasPath();
+            String path = finder.DijkstrasPath(networkWeights, this.getKey(), temp.get(node));
+            String[] dest = path.split(" ");
+            String nextPath = "";
+            for (int x = 1; x < dest.length; x++){
+                nextPath += dest[x] + " ";
+            }
+            int rando = rn.nextInt();
+            byte[] payload = toByteArray(rando);
+            byte[][] messageBytes = new byte[2][];
+            messageBytes[0] = payload;
+            messageBytes[1] = nextPath.getBytes();
+
+            TCPSender.sendMessage(dest[2], (byte) 9, -5, messageBytes);
+        }
+    }
+
+    byte[] toByteArray(int value) {
+        return new byte[] {
+            (byte)(value >> 24),
+            (byte)(value >> 16),
+            (byte)(value >> 8),
+            (byte)value };
+    }
+
     //GETTERS
     public String getAddr() { return this.NODE_HOST; }
     public int    getPort() { return this.NODE_PORT; }
-    public String getRegAddr() { return this.REGISTRY_HOST; }
-    public int    getRegPort() { return this.REGISTRY_PORT; }
+
+    private String getRegAddr() { return this.REGISTRY_HOST; }
+    private int    getRegPort() { return this.REGISTRY_PORT; }
+
     public String getKey() { return this.getAddr() + ":" + this.getPort(); }
-    public String getRegKey() { return this.getRegAddr() + ":" + this.getRegPort(); }
+    public String getRegKey() { return REGISTRY_HOST + ":" + REGISTRY_PORT; }
 
     //First Arg  = registry's Host address
     //Second Arg = registry's port number
@@ -135,6 +187,11 @@ public class MessagingNode implements Node{
             System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
             return;
         }
-        new MessagingNode(args[0], Integer.parseInt(args[1]));
+        MessagingNode me = new MessagingNode(args[0], Integer.parseInt(args[1]));
+        me.networkConnections = new ArrayList<>();
+        while(running != true){
+
+        }
+        return;
     }
 }

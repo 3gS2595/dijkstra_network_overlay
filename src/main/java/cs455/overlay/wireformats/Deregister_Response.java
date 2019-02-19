@@ -1,5 +1,6 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.transport.TCPSender;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class Deregister_Response implements Event {
     private byte[] marshaledBytes;
 
     //RECEIVES RESPONSE
-    Deregister_Response(byte[] marshaledBytes) throws IOException {
+    Deregister_Response(byte[] marshaledBytes, MessagingNode node) throws IOException {
         this.marshaledBytes = marshaledBytes;
 
         //Incoming message data
@@ -42,15 +43,19 @@ public class Deregister_Response implements Event {
         din.readFully(identifierBytes);
         ADDITIONAL_INFO = new String(identifierBytes);
 
-        //Final clean up
+        //Final clean up)
         baInputStream.close();
         din.close();
 
         if(debug) {
-            System.out.println("DEREGISTER_RESPONSE(RECEIVED)");
-            System.out.print("  (Status Code: " + STATUS + ")");
-            System.out.print("(Additional Info: " + ADDITIONAL_INFO + ")");
-            System.out.println();
+        }
+        if (STATUS == 1) {
+            System.out.println("DEREGISTERED AND EXITING PROGRAM");
+            System.exit(1);
+        }else {
+            System.out.println("DEREGISTERATION FAILURE");
+            System.out.println("THIS SHOULD NOT HAVE HAPPENED");
+
         }
     }
 
@@ -87,13 +92,6 @@ public class Deregister_Response implements Event {
         //sends request
         TCPSender sender = new TCPSender(REG_SOCKET);
         sender.sendData(marshaledBytes);
-
-        if(debug) {
-            System.out.println("DEREGISTER_RESPONSE (SENT)");
-            System.out.print("  (Status Code: " + STATUS + ")");
-            System.out.print("(Additional Info: " + INFO + ")");
-            System.out.println();
-        }
     }
 
     public int getType(){ return 1; }

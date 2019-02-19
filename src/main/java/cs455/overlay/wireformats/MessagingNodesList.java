@@ -14,26 +14,31 @@ public class MessagingNodesList implements Event{
     //TODO REMOVE DEBUG
     boolean debug = true;
 
-    public MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
-    public ArrayList<String> OVERLAY_CONNECTION_WEIGHTS = new ArrayList<>();
+    private MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
+    private ArrayList<String> OVERLAY_CONNECTION_WEIGHTS = new ArrayList<>();
 
     //Hash map that houses all the node information
     //Each entry will include SERVER_ADDRESS and PORT
     //Key is the node's SERVER_ADDRESS
     public HashMap<String, Pair> NODE_REGISTRY_ARRAY = new HashMap<>();
+    public ArrayList<String> nodes = new ArrayList<>();
+
     private byte[] marshaledBytes;
 
     //CONSTRUCTOR
     public MessagingNodesList(){}
 
     public int size(){
-        return NODE_REGISTRY_ARRAY.size();
+
+        System.out.println(nodes.size());
+        return nodes.size();
     }
 
     String ADD_NODE(String ADDRESS, int PORT){
         String key = ADDRESS + ":" + PORT;
         if(!NODE_REGISTRY_ARRAY.containsKey(key)){
             NODE_REGISTRY_ARRAY.put(key, new Pair(PORT, ADDRESS));
+            nodes.add(key);
             return "1NODE REGISTERED";
         }
         return "0NODE ALREADY REGISTERED";
@@ -120,15 +125,6 @@ public class MessagingNodesList implements Event{
                 byte[] identifierBytes = new byte[strLength];
                 din.readFully(identifierBytes);
                 String raw = new String(identifierBytes);
-                String[] nodeData = raw.split(" ");
-                String[] node1 = nodeData[0].split(":");
-                String[] node2 = nodeData[1].split(":");
-                NODE_ADDRESS = node1[0];
-                NODE_PORT = Integer.parseInt(node1[1]);
-                String NODE_ADDRESS2 = node2[0];
-                int NODE_PORT2 = Integer.parseInt(node2[1]);
-                int weight = Integer.parseInt(nodeData[2]);
-
                 //add connection weight
                 OVERLAY_CONNECTION_WEIGHTS.add(raw);
             }
@@ -152,7 +148,6 @@ public class MessagingNodesList implements Event{
 
         return null;
     }
-
 
     public int getType(){
         return 5;

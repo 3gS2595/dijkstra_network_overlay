@@ -15,7 +15,7 @@ public class OverlayCreator {
     private ArrayList<String> tested = new ArrayList<>();
 
     //creates and then sends the overlay to the MessagingNodes
-    public OverlayCreator(int linkLimit) throws IOException{
+    public ArrayList<String> OverlayCreate(int linkLimit, int type) throws IOException{
 
         int numOfNodes = Registry.NODE_LIST.NODE_REGISTRY_ARRAY.size();
 
@@ -103,6 +103,8 @@ public class OverlayCreator {
         int wnum = 0;
         byte[][] weightBytes = new byte[numOfNodes*linkLimit][];
 
+        ArrayList<String> weights = new ArrayList<>();
+
         //sends netwrok information to respective nodes
         for (String thisKey: networkTableSenders.keySet()) {
             //curNetwork is the current nodes network networkTable entry
@@ -123,22 +125,20 @@ public class OverlayCreator {
             TCPSender.sendMessage(thisKey, 5, numberOfNodes, messageBytes);
 
             //generates connection weights array
+
             for (MessagingNodesList.Pair messenger: curNetworks) {
                 //generates weight and then sends
                 Random rn = new Random();
                 String notationString = (thisKey +
                     " " + messenger.toKey() +
                     " " + rn.nextInt((10) + 1));
+                weights.add(notationString);
                 byte[] data = notationString.getBytes();
                 weightBytes[wnum] = data;
                 wnum++;
             }
         }
-
-        //SENDS weight information
-        for (String thisKey: networkTableSenders.keySet()) {
-            TCPSender.sendMessage(thisKey, 6, wnum, weightBytes);
-        }
+        return weights;
     }
 
     private void recordConnections(String key1, String key2){
