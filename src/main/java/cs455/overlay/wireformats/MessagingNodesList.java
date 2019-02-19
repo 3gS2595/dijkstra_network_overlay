@@ -120,15 +120,6 @@ public class MessagingNodesList implements Event{
                 byte[] identifierBytes = new byte[strLength];
                 din.readFully(identifierBytes);
                 String raw = new String(identifierBytes);
-                String[] nodeData = raw.split(" ");
-                String[] node1 = nodeData[0].split(":");
-                String[] node2 = nodeData[1].split(":");
-                NODE_ADDRESS = node1[0];
-                NODE_PORT = Integer.parseInt(node1[1]);
-                String NODE_ADDRESS2 = node2[0];
-                int NODE_PORT2 = Integer.parseInt(node2[1]);
-                int weight = Integer.parseInt(nodeData[2]);
-
                 //add connection weight
                 OVERLAY_CONNECTION_WEIGHTS.add(raw);
             }

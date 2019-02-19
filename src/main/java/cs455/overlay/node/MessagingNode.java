@@ -5,6 +5,7 @@ import cs455.overlay.util.DijkstrasPath;
 import cs455.overlay.wireformats.Deregister_Request;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Register_Request;
+import cs455.overlay.wireformats.TaskInitiate;
 
 import java.io.*;
 import java.net.*;
@@ -25,6 +26,8 @@ public class MessagingNode implements Node{
     //MessengerNode's network information
     private String  NODE_HOST;
     private Integer NODE_PORT;
+
+    private static Boolean running = true;
 
 
     //CONSTRUCTOR
@@ -83,13 +86,11 @@ public class MessagingNode implements Node{
             new Deregister_Request(this);
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
-            System.exit(1);
         }
     }
 
-    //INTAKES GIVEN NETWORK OVERLAY
+        //INTAKES GIVEN NETWORK OVERLAY
     public void setNetwork(MessagingNodesList.Pair[] network) throws IOException{
-        System.out.println("NETWORK");
         for(MessagingNodesList.Pair temp : network){
             System.out.println(temp.toKey());
             this.networkConnections.add(temp.toKey());
@@ -99,33 +100,40 @@ public class MessagingNode implements Node{
 
     //INTAKES GIVEN NETWORK OVERLAY
     public void setNetworkWeights(ArrayList<String> connectionWeights){
-        this.networkWeights = connectionWeights;
+        this.networkWeights = new ArrayList<>(connectionWeights);
         System.out.println("WEIGHTS");
         for (String temp : connectionWeights){
             String[] tempA = temp.split(" ");
+            System.out.println(temp);
         }
-        DijkstrasPath temp = new DijkstrasPath();
-        String[] path = temp.DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
-        System.out.println();
-        for(String key : path){
-            System.out.println(key);
-        }
+        //DijkstrasPath temp = new DijkstrasPath();
+        //String[] path = temp.DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
+        //System.out.println();
+        //for(String key : path){
+        //    System.out.println(key);
+        //}
     }
 
     public void addConnection(String key){
+        System.out.println(key);
         this.networkConnections.add(key);
     }
 
     //IDENTIFICATION
     public boolean isMessenger(){ return true; }
 
+    public void taskInitiate(){ }
+
+
     //GETTERS
     public String getAddr() { return this.NODE_HOST; }
     public int    getPort() { return this.NODE_PORT; }
-    public String getRegAddr() { return this.REGISTRY_HOST; }
-    public int    getRegPort() { return this.REGISTRY_PORT; }
+
+    private String getRegAddr() { return this.REGISTRY_HOST; }
+    private int    getRegPort() { return this.REGISTRY_PORT; }
+
     public String getKey() { return this.getAddr() + ":" + this.getPort(); }
-    public String getRegKey() { return this.getRegAddr() + ":" + this.getRegPort(); }
+    public String getRegKey() { return REGISTRY_HOST + ":" + REGISTRY_PORT; }
 
     //First Arg  = registry's Host address
     //Second Arg = registry's port number
@@ -135,6 +143,11 @@ public class MessagingNode implements Node{
             System.out.println("INCORRECT ARGUMENTS FOR MESSENGER NODE");
             return;
         }
-        new MessagingNode(args[0], Integer.parseInt(args[1]));
+        MessagingNode me = new MessagingNode(args[0], Integer.parseInt(args[1]));
+        me.networkConnections = new ArrayList<>();
+        while(running != true){
+
+        }
+        return;
     }
 }

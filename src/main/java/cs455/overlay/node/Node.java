@@ -35,6 +35,7 @@ public interface Node {
     //getters
     String getAddr();
     int getPort();
+    void taskInitiate();
 
     //Identification
     boolean isMessenger();

@@ -8,4 +8,5 @@ public interface Protocol {
     int MESSAGING_NODES_LIST = 5;
     int MESSAGING_NODES_WEIGHTS = 6;
     int MESSAGING_GREETING = 7;
+    int TASK_INITIATE = 8;
 }

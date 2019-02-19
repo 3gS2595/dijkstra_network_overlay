@@ -60,7 +60,7 @@ public class DijkstrasPath {
                 }
             }
         }
-        String pathString = getPath(path, "lazer-VirtualBox:1026", sourceKey);
+        String pathString = getPath(path, destKey, sourceKey);
         String[] reversed = pathString.split(" ");
         String[] parsed= new String[reversed.length];
         int i = parsed.length -1;

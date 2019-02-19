@@ -1,12 +1,17 @@
 package cs455.overlay.node;
 
+import cs455.overlay.transport.TCPSender;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
+import cs455.overlay.wireformats.TaskInitiate;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 
 
@@ -17,7 +22,7 @@ public class Registry implements Node{
     //Registry's network information
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
-    public  final static int[] IS_SETUP = new int[1];
+    private static ArrayList<String> networkTable;
 
     //The only EventFactory Instance
     public final static EventFactory Factory = new EventFactory();
@@ -64,15 +69,19 @@ public class Registry implements Node{
                     System.out.println(NODE_LIST.print());
                     break;
                 case "list-weights":
-                    System.out.println("tat");
+                    listWeights();
                     break;
-                case "setup":
-                    IS_SETUP[0] = 1;
-                    new OverlayCreator(Integer.parseInt(start[1]));
+
+                //TODO REGISTRY NEEDS TO CHECK OVERLAY
+                case "setup-overlay":
+                    OverlayCreator overlay = new OverlayCreator();
+                    setNetwork(overlay.OverlayCreate(Integer.parseInt(start[1]), 1));
                     break;
                 case "send-overlay-link-weights":
+                    sendWeights();
                     break;
                 case "start":
+                    taskInitiates();
                     break;
                 default:
                     System.out.println("command not recognized");
@@ -82,6 +91,32 @@ public class Registry implements Node{
         }
     }
 
+    private static void listWeights(){
+        for (String key: networkTable)
+            System.out.println(key);
+    }
+
+    private static void sendWeights() throws IOException{
+        int wnum = 0;
+        byte[][] weightBytes = new byte[networkTable.size()][];
+        for (String thisKey: networkTable) {
+            byte[] data = thisKey.getBytes();
+            weightBytes[wnum] = data;
+            wnum++;
+        }
+        //SENDS weight information
+        for (String thisKey: NODE_LIST.NODE_REGISTRY_ARRAY.keySet()) {
+            TCPSender.sendMessage(thisKey, 6, wnum, weightBytes);
+        }
+    }
+
+
+
+    //RECEIVES OVERLAY AND WEIGHT IN ONE SWEEP
+    private static void setNetwork(ArrayList<String> table){
+        networkTable = table;
+    }
+
     //Identification
     public boolean isMessenger(){ return false; }
 
@@ -89,18 +124,24 @@ public class Registry implements Node{
     public String getAddr() { return REGISTRY_HOST; }
     public int    getPort() { return REGISTRY_PORT; }
 
-    //NORMALLY NEVER CALLED ON REGISTRY NODE
-    public String getRegAddr() { return "-1"; }
-    public int    getRegPort() { return  -1;  }
 
     public String    getKey() {return this.getAddr() + ":" + this.getPort(); }
     public String    getRegKey() {return this.getAddr() + ":" + this.getPort(); }
 
+    public void taskInitiate() {}
+
+    public static void taskInitiates() {
+        try {
+            for (String key : NODE_LIST.NODE_REGISTRY_ARRAY.keySet()) {
+                new TaskInitiate(key, 5);
+            }
+        }catch (IOException e){
+        }
+    }
 
 
     //First Arg = TCP Port to use for registry
     public static void main(String[] args) throws IOException{
-        IS_SETUP[0] = 0;
         if(args.length != 1) {
             System.out.println("INCORRECT ARGUMENTS FOR REGISTRY NODE");
             return;
