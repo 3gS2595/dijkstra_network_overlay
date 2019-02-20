@@ -147,7 +147,6 @@ public class OverlayCreator {
     }
 
     private String getKey(ArrayList<MessagingNodesList.Pair> nodeList, int place, int modifier){
-        return nodeList.get(place + modifier).getADDRESS() + ":"
-            + nodeList.get(place + modifier).getPORT();
+        return nodeList.get(place + modifier).toKey();
     }
 }

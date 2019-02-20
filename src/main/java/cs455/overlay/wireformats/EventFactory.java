@@ -2,6 +2,7 @@ package cs455.overlay.wireformats;
 
 import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Node;
+import cs455.overlay.node.Registry;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -53,7 +54,16 @@ public class EventFactory{
                 new TaskInitiate(marshaledBytes, (MessagingNode)this.node);
                 break;
             case Protocol.DATA_MESSAGE:
-                new MessageComs(marshaledBytes);
+                new MessageComs(marshaledBytes, (MessagingNode)this.node);
+                break;
+            case Protocol.TASK_COMPLETE:
+                new TaskComplete(marshaledBytes, (Registry)this.node);
+                break;
+            case Protocol.PULL_TRAFFIC_SUMMARY:
+                new PULL_TRAFFIC_SUMMARY(marshaledBytes, (MessagingNode) this.node);
+                break;
+            case Protocol.TRAFFIC_SUMMARY:
+                new TRAFFIC_SUMMARY(marshaledBytes, (Registry)this.node);
                 break;
             default:
                 System.out.println("UNKNOWN MESSAGE TYPE RECEIVED");

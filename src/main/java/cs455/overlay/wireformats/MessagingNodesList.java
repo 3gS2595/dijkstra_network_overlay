@@ -11,9 +11,6 @@ import java.util.HashMap;
 
 public class MessagingNodesList implements Event{
 
-    //TODO REMOVE DEBUG
-    boolean debug = true;
-
     private MessagingNodesList.Pair[] OVERLAY_CONNECTION_NODES;
     private ArrayList<String> OVERLAY_CONNECTION_WEIGHTS = new ArrayList<>();
 
@@ -27,12 +24,6 @@ public class MessagingNodesList implements Event{
 
     //CONSTRUCTOR
     public MessagingNodesList(){}
-
-    public int size(){
-
-        System.out.println(nodes.size());
-        return nodes.size();
-    }
 
     String ADD_NODE(String ADDRESS, int PORT){
         String key = ADDRESS + ":" + PORT;
@@ -83,7 +74,7 @@ public class MessagingNodesList implements Event{
 
     //RECEIVES OVERLAY REQUEST
     //Assigns given list to the node, array stored in messagingNode node
-    public MessagingNodesList(byte[] marshaledBytes, MessagingNode node) throws IOException {
+    MessagingNodesList(byte[] marshaledBytes, MessagingNode node) throws IOException {
         this.marshaledBytes = marshaledBytes;
 
         //Incoming network info
@@ -142,11 +133,6 @@ public class MessagingNodesList implements Event{
         }
         //SENDS DEREGISTER_RESPONSE
         //new Deregister_Response(NODE_ADDRESS, NODE_PORT, status, info);
-    }
-
-    public String listWeights(){
-
-        return null;
     }
 
     public int getType(){

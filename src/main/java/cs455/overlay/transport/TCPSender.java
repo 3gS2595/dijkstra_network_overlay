@@ -9,6 +9,7 @@ import java.net.Socket;
 public class TCPSender {
 	private Socket socket;
 	private DataOutputStream dout;
+
 	public TCPSender(Socket socket) throws IOException {
 		this.socket = socket;
 		dout = new DataOutputStream(socket.getOutputStream());
@@ -52,7 +53,6 @@ public class TCPSender {
 			}
 		}
 
-    
 		dout.flush();
 		marshaledBytes = baOutputStream.toByteArray();
 		baOutputStream.close();

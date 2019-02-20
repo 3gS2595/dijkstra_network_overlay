@@ -1,12 +1,11 @@
 package cs455.overlay.node;
 
-import cs455.overlay.dijkstra.ShortestPath;
 import cs455.overlay.transport.*;
 import cs455.overlay.util.DijkstrasPath;
 import cs455.overlay.wireformats.Deregister_Request;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Register_Request;
-import cs455.overlay.wireformats.TaskInitiate;
+import cs455.overlay.wireformats.TaskComplete;
 
 import java.io.*;
 import java.net.*;
@@ -29,7 +28,13 @@ public class MessagingNode implements Node{
     private String  NODE_HOST;
     private Integer NODE_PORT;
 
-    private static Boolean running = true;
+    public Integer sendTracker = 0;
+    public Integer relayTracker = 0;
+    public Integer receiveTracker = 0;
+
+    public float receiveSummation = 0;
+    public float sendSummation = 0;
+
 
 
     //CONSTRUCTOR
@@ -90,12 +95,17 @@ public class MessagingNode implements Node{
     private void terminateNode(){
         try {
             new Deregister_Request(this);
+            System.out.println(sendTracker);
+            System.out.println(relayTracker);
+            System.out.println(receiveTracker);
+            System.out.println(receiveSummation);
+            System.out.println(sendSummation);
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
         }
     }
 
-        //INTAKES GIVEN NETWORK OVERLAY
+    //INTAKES GIVEN NETWORK OVERLAY
     public void setNetwork(MessagingNodesList.Pair[] network) throws IOException{
         for(MessagingNodesList.Pair temp : network){
             System.out.println(temp.toKey());
@@ -125,12 +135,11 @@ public class MessagingNode implements Node{
         this.networkConnections.add(key);
     }
 
-    //IDENTIFICATION
-    public boolean isMessenger(){ return true; }
 
     public void taskInitiate(int rounds) throws IOException{
         Random rn = new Random(System.currentTimeMillis());
         ArrayList<String> temp = new ArrayList<>();
+
         for (String connection :networkWeights){
             String[] keys = connection.split(" ");
             if(!temp.contains(keys[0]))
@@ -138,19 +147,22 @@ public class MessagingNode implements Node{
             if(!temp.contains(keys[1]))
                 temp.add(keys[1]);
         }
+
         for(int i = 0; i < rounds;i++) {
             //picks random node to send to
             int node = rn.nextInt((temp.size() - 1) + 1);
-            while (temp.get(node).contentEquals(this.getKey())) {
+            while (temp.get(node).contentEquals(this.getKey()))
                 node = rn.nextInt((temp.size() - 1) + 1);
-            }
+
             DijkstrasPath finder = new DijkstrasPath();
             String path = finder.DijkstrasPath(networkWeights, this.getKey(), temp.get(node));
             String[] dest = path.split(" ");
             String nextPath = "";
-            for (int x = 1; x < dest.length; x++){
+
+            for (int x = 1; x < dest.length; x++)
                 nextPath += dest[x] + " ";
-            }
+
+            //constructs messageBytes
             int rando = rn.nextInt();
             byte[] payload = toByteArray(rando);
             byte[][] messageBytes = new byte[2][];
@@ -158,10 +170,13 @@ public class MessagingNode implements Node{
             messageBytes[1] = nextPath.getBytes();
 
             TCPSender.sendMessage(dest[2], (byte) 9, -5, messageBytes);
+            this.sendTracker++;
+            sendSummation += rando;
         }
+        new TaskComplete(this);
     }
 
-    byte[] toByteArray(int value) {
+    private byte[] toByteArray(int value) {
         return new byte[] {
             (byte)(value >> 24),
             (byte)(value >> 16),
@@ -169,14 +184,9 @@ public class MessagingNode implements Node{
             (byte)value };
     }
 
-    //GETTERS
-    public String getAddr() { return this.NODE_HOST; }
-    public int    getPort() { return this.NODE_PORT; }
-
-    private String getRegAddr() { return this.REGISTRY_HOST; }
-    private int    getRegPort() { return this.REGISTRY_PORT; }
-
-    public String getKey() { return this.getAddr() + ":" + this.getPort(); }
+    //getters
+    public boolean isMessenger(){ return true; }
+    public String getKey() { return this.NODE_HOST + ":" + this.NODE_PORT; }
     public String getRegKey() { return REGISTRY_HOST + ":" + REGISTRY_PORT; }
 
     //First Arg  = registry's Host address
@@ -189,9 +199,6 @@ public class MessagingNode implements Node{
         }
         MessagingNode me = new MessagingNode(args[0], Integer.parseInt(args[1]));
         me.networkConnections = new ArrayList<>();
-        while(running != true){
-
-        }
         return;
     }
 }

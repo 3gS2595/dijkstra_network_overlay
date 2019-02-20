@@ -5,6 +5,7 @@ import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
+import cs455.overlay.wireformats.PULL_TRAFFIC_SUMMARY;
 import cs455.overlay.wireformats.TaskInitiate;
 
 import java.io.IOException;
@@ -12,15 +13,14 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-
 public class Registry implements Node{
-    //TODO DISABLE DEBUG TOGGLE
-    private boolean debug = true;
 
     //Registry's network information
     private String  REGISTRY_HOST;
     private Integer REGISTRY_PORT;
     private static ArrayList<String> networkTable;
+    public static ArrayList<String> completed = new ArrayList<>();
+
 
     //The only EventFactory Instance
     public final static EventFactory Factory = new EventFactory();
@@ -28,7 +28,6 @@ public class Registry implements Node{
     //Actual "registry" (hashed)
     public final static MessagingNodesList NODE_LIST = new MessagingNodesList();
 
-    //CONSTRUCTOR
     private Registry(int ARG_REGISTER_PORT) {
 
         //Records the given temrinal argument
@@ -36,13 +35,9 @@ public class Registry implements Node{
         try {
             //Attains the Server address of the used machine
             this.REGISTRY_HOST = InetAddress.getLocalHost().getHostName();
-
-            //DEBUG
-            if (debug) {
-                System.out.println("INITIALIZED REGISTRY NODE\n" +
-                    "REGISTRY_HOST: " + REGISTRY_HOST + "\n" +
-                    "REGISTRY_PORT: " + REGISTRY_PORT + "\n");
-            }
+            System.out.println("INITIALIZED REGISTRY NODE\n" +
+                "REGISTRY_HOST: " + REGISTRY_HOST + "\n" +
+                "REGISTRY_PORT: " + REGISTRY_PORT + "\n");
 
             //Initializes a TCPServerThread
             TCPServerThread ServerThread = new TCPServerThread(this.REGISTRY_PORT, this);
@@ -55,9 +50,7 @@ public class Registry implements Node{
         }
     }
 
-    //TODO SET TASK_INITIATE TO START MESSAGING NODES TALKING
-    //USER COMMAND INPUT
-    private static void userInput(Registry node) throws IOException{
+    private static void userInput() throws IOException{
         Scanner scanner = new Scanner(System.in);
         while(true){
             String in = scanner.nextLine();
@@ -82,7 +75,10 @@ public class Registry implements Node{
                     sendWeights();
                     break;
                 case "start":
-                    taskInitiates();
+                    int rounds = 4;
+                    if (start.length != 1)
+                        rounds = Integer.parseInt(start[1]);
+                    taskInitiates(rounds);
                     break;
                 default:
                     System.out.println("command not recognized");
@@ -111,35 +107,43 @@ public class Registry implements Node{
         }
     }
 
+    private static void taskInitiates(int rounds) {
+        try {
+            for (String key : NODE_LIST.NODE_REGISTRY_ARRAY.keySet()) {
+                new TaskInitiate(key, rounds);
+            }
+            while(completed.size() != NODE_LIST.NODE_REGISTRY_ARRAY.size()){
+                System.out.println(completed.size());
+            }
+            System.out.println("hey");
+            completed = new ArrayList<>();
+            for (String key : completed) {
+                new PULL_TRAFFIC_SUMMARY(key);
+            }
+            while(completed.size() != NODE_LIST.NODE_REGISTRY_ARRAY.size()){
+                System.out.println(completed.size());
 
+            }
+            final Object[][] table = new String[NODE_LIST.NODE_REGISTRY_ARRAY.size()][6];
+            for(String entry: completed){
+                String[] parsed = entry.split(" ");
+            }
+            for (final Object[] row : table) {
+                System.out.format("%15s%15s%15s%15s%15s%15s\n", row);
+            }
+        }catch (IOException e){
+        }
+    }
 
-    //RECEIVES OVERLAY AND WEIGHT IN ONE SWEEP
+    //RECEIVES OVERLAY AND WEIGHT IN ONE FULL SWEEP
     private static void setNetwork(ArrayList<String> table){
         networkTable = table;
     }
 
     //Identification
     public boolean isMessenger(){ return false; }
-
-    //GETTERS
-    public String getAddr() { return REGISTRY_HOST; }
-    public int    getPort() { return REGISTRY_PORT; }
-
-
-    public String    getKey() {return this.getAddr() + ":" + this.getPort(); }
-    public String    getRegKey() {return this.getAddr() + ":" + this.getPort(); }
-
-    public void taskInitiate() {}
-
-    public static void taskInitiates() {
-        try {
-            for (String key : NODE_LIST.NODE_REGISTRY_ARRAY.keySet()) {
-                new TaskInitiate(key, 5);
-            }
-        }catch (IOException e){
-        }
-    }
-
+    public String  getKey() {return this.REGISTRY_HOST+ ":" + this.REGISTRY_PORT; }
+    public String  getRegKey() {return this.REGISTRY_HOST + ":" + this.REGISTRY_PORT; }
 
     //First Arg = TCP Port to use for registry
     public static void main(String[] args) throws IOException{
@@ -148,6 +152,6 @@ public class Registry implements Node{
             return;
         }
         Registry thisRegistry = new Registry(Integer.parseInt(args[0]));
-        userInput(thisRegistry);
+        userInput();
     }
 }
