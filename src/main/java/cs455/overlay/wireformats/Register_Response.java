@@ -16,7 +16,7 @@ public class Register_Response implements Event {
 
     //RECEIVES RESPONSE
     public Register_Response(byte[] marshaledBytes) throws IOException {
-        System.out.println("Registered");
+        System.out.println("REGISTERED");
         this.marshaledBytes = marshaledBytes;
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);

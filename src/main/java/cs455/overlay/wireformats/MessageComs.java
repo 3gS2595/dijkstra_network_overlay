@@ -13,8 +13,9 @@ public class MessageComs implements Event {
 
     //RECEIVES REQUEST
     MessageComs(byte[] marshaledBytes, MessagingNode Node) throws IOException {
+        byte[] datas = marshaledBytes;
         ByteArrayInputStream baInputStream =
-            new ByteArrayInputStream(marshaledBytes);
+            new ByteArrayInputStream(datas);
         DataInputStream din =
             new DataInputStream(new BufferedInputStream(baInputStream));
 
@@ -29,20 +30,24 @@ public class MessageComs implements Event {
             String raw = new String(path);
             String newPath = "";
             String[] data = raw.split(" ");
+            String test = "";
             for (int i = 1; i < data.length;i++) {
                 newPath += data[i] + " ";
+                test += data[i];
+
             }
-            if(data.length != 1) {
-                Random rn = new Random(System.currentTimeMillis());
-                int rando = rn.nextInt();
+            if(data.length > 1 && data[0] != " ") {
+                int rando = Payload;
                 byte[] payload = toByteArray(rando);
                 byte[][] messageBytes = new byte[2][];
                 messageBytes[0] = payload;
+                System.out.println("HO " + test);
+                System.out.println();
                 messageBytes[1] = newPath.getBytes();
                 TCPSender.sendMessage(data[1], (byte) 9, -5, messageBytes);
                 Node.relayTracker++;
+
             }else {
-                System.out.println("DO YOU NOW DE WEY");
                 Node.receiveTracker++;
                 Node.receiveSummation += Payload;
             }

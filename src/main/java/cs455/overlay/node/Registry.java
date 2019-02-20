@@ -64,18 +64,18 @@ public class Registry implements Node{
                     break;
 
                 //TODO REGISTRY NEEDS TO CHECK OVERLAY
-                case "setup":
+                case "setup-overlay":
                     OverlayCreator overlay = new OverlayCreator();
                     int size = 4;
                     if (start.length != 1)
                         size = Integer.parseInt(start[1]);
                     setNetwork(overlay.OverlayCreate(size, 1));
                     break;
-                case "send":
+                case "send-overlay-link-weights":
                     sendWeights();
                     break;
                 case "start":
-                    int rounds = 4;
+                    int rounds = 5;
                     if (start.length != 1)
                         rounds = Integer.parseInt(start[1]);
                     taskInitiates(rounds);
@@ -84,7 +84,6 @@ public class Registry implements Node{
                     System.out.println("command not recognized");
                     break;
             }
-            System.out.println();
         }
     }
 
@@ -111,26 +110,61 @@ public class Registry implements Node{
         try {
             for (String key : NODE_LIST.NODE_REGISTRY_ARRAY.keySet()) {
                 new TaskInitiate(key, rounds);
+                Thread.sleep(10);
             }
-            while(completed.size() != NODE_LIST.NODE_REGISTRY_ARRAY.size()){
-                System.out.println(completed.size());
-            }
-            System.out.println("hey");
-            completed = new ArrayList<>();
-            for (String key : completed) {
-                new PULL_TRAFFIC_SUMMARY(key);
-            }
-            while(completed.size() != NODE_LIST.NODE_REGISTRY_ARRAY.size()){
-                System.out.println(completed.size());
+            while (completed.size() != NODE_LIST.NODE_REGISTRY_ARRAY.size())
+                Thread.sleep(100);
 
+            completed = new ArrayList<>();
+            for (String key : NODE_LIST.NODE_REGISTRY_ARRAY.keySet())
+                new PULL_TRAFFIC_SUMMARY(key);
+            while (completed.size() != NODE_LIST.NODE_REGISTRY_ARRAY.size())
+                Thread.sleep(100);
+
+            String[][] table = new String[NODE_LIST.NODE_REGISTRY_ARRAY.size()][6];
+            for (int i = 0; i < completed.size(); i++) {
+                String[] parsed = completed.get(i).split(" ");
+                table[i] = parsed;
             }
-            final Object[][] table = new String[NODE_LIST.NODE_REGISTRY_ARRAY.size()][6];
-            for(String entry: completed){
-                String[] parsed = entry.split(" ");
+            System.out.format("%10s%-15s%-15s%-25s%-25s%-15s\n",
+                "", "Number",
+                "", "",
+                "", "");
+            System.out.format("%10s%-15s%-15s%-25s%-25s%-15s\n",
+                "", "of",
+                "Number of", "",
+                "", "Number of");
+            System.out.format("%10s%-15s%-15s%-25s%-25s%-15s\n",
+                "", "messages",
+                "messages", "Summation of sent",
+                "Summation of received", "messages");
+            System.out.format("%-10s%-15s%-15s%-25s%-25s%-15s\n",
+                "", "sent",
+                "received", "messages",
+                "messages", "relayed");
+
+            for (int i = 0; i < completed.size(); i++){
+                System.out.format("%10s%-15s%-15s%-25s%-25s%-15s\n",
+                    ("Node" + (i+1) + " "), table[i][2],
+                    table[i][3], table[i][4],
+                    table[i][5], table[i][6]);
             }
-            for (final Object[] row : table) {
-                System.out.format("%15s%15s%15s%15s%15s%15s\n", row);
+            int sumSend = 0;
+            int sumRec = 0;
+            float SumateSend = 0;
+            float SumateRec = 0;
+            for(int i = 0; i < completed.size();i++){
+                sumSend += Integer.parseInt(table[i][2]);
+                sumRec += Integer.parseInt(table[i][3]);
+                SumateSend += Float.parseFloat(table[i][4]);
+                SumateRec += Float.parseFloat(table[i][5]);
             }
+            System.out.format("%10s%-15s%-15s%-25s%-25s%-15s\n",
+                "Sum " , sumSend,
+                sumRec, SumateSend,
+                SumateRec, " ");
+
+        }catch (InterruptedException x){
         }catch (IOException e){
         }
     }

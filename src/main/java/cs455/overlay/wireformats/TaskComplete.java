@@ -27,7 +27,6 @@ public class TaskComplete {
          String key = new String(identifierBytes);
          if(!Node.completed.contains(key)) {
              Node.completed.add(key);
-             System.out.println("ADDED");
          }
          //Final clean up
          baInputStream.close();

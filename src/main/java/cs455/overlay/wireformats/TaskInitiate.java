@@ -31,7 +31,7 @@ public class TaskInitiate {
         din.readFully(identifierBytes);
         String raw = new String(identifierBytes);
         int ROUNDS = Integer.parseInt(raw);
-        System.out.println(ROUNDS);
+        System.out.println(ROUNDS + " ROUNDS INITIALIZED");
 
         //complete, cleans up
         baInputStream.close();

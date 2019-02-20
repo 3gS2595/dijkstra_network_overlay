@@ -8,8 +8,6 @@ public class PULL_TRAFFIC_SUMMARY {
     //receives
     PULL_TRAFFIC_SUMMARY(byte[] marshaledBytes, MessagingNode Node) throws IOException{
         new TRAFFIC_SUMMARY(Node);
-        System.out.println("HEYEYEYEYE");
-        System.exit(1);
     }
 
     //sends

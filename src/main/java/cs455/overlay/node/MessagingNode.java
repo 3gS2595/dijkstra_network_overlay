@@ -95,11 +95,6 @@ public class MessagingNode implements Node{
     private void terminateNode(){
         try {
             new Deregister_Request(this);
-            System.out.println(sendTracker);
-            System.out.println(relayTracker);
-            System.out.println(receiveTracker);
-            System.out.println(receiveSummation);
-            System.out.println(sendSummation);
         } catch (IOException e){
             System.out.println("Registry::failed_starting_server_thread:: " + e);
         }
@@ -108,20 +103,18 @@ public class MessagingNode implements Node{
     //INTAKES GIVEN NETWORK OVERLAY
     public void setNetwork(MessagingNodesList.Pair[] network) throws IOException{
         for(MessagingNodesList.Pair temp : network){
-            System.out.println(temp.toKey());
             this.networkConnections.add(temp.toKey());
             new Register_Request(this, temp.toKey());
         }
+        System.out.println(network.length + " NODES SET TO INITIALIZE");
+
     }
 
     //INTAKES GIVEN NETWORK OVERLAY
     public void setNetworkWeights(ArrayList<String> connectionWeights){
         this.networkWeights = new ArrayList<>(connectionWeights);
-        System.out.println("WEIGHTS");
-        for (String temp : connectionWeights){
-            String[] tempA = temp.split(" ");
-            System.out.println(temp);
-        }
+
+        System.out.println(connectionWeights.size() + " NETWORK WEIGHTS RECEIVED");
         //DijkstrasPath temp = new DijkstrasPath();
         //String[] path = temp.DijkstrasPath(connectionWeights, this.getKey(), "lazer-VirtualBoc:1029");
         //System.out.println();
@@ -131,10 +124,8 @@ public class MessagingNode implements Node{
     }
 
     public void addConnection(String key){
-        System.out.println(key);
         this.networkConnections.add(key);
     }
-
 
     public void taskInitiate(int rounds) throws IOException{
         Random rn = new Random(System.currentTimeMillis());
@@ -159,7 +150,7 @@ public class MessagingNode implements Node{
             String[] dest = path.split(" ");
             String nextPath = "";
 
-            for (int x = 1; x < dest.length; x++)
+            for (int x = 2; x < dest.length; x++)
                 nextPath += dest[x] + " ";
 
             //constructs messageBytes
@@ -168,7 +159,6 @@ public class MessagingNode implements Node{
             byte[][] messageBytes = new byte[2][];
             messageBytes[0] = payload;
             messageBytes[1] = nextPath.getBytes();
-
             TCPSender.sendMessage(dest[2], (byte) 9, -5, messageBytes);
             this.sendTracker++;
             sendSummation += rando;
