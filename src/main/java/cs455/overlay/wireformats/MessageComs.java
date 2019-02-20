@@ -1,5 +1,6 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.transport.TCPSender;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.Random;
 public class MessageComs implements Event {
 
     //RECEIVES REQUEST
-    MessageComs(byte[] marshaledBytes) throws IOException {
+    MessageComs(byte[] marshaledBytes, MessagingNode Node) throws IOException {
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
         DataInputStream din =
@@ -39,8 +40,11 @@ public class MessageComs implements Event {
                 messageBytes[0] = payload;
                 messageBytes[1] = newPath.getBytes();
                 TCPSender.sendMessage(data[1], (byte) 9, -5, messageBytes);
+                Node.relayTracker++;
             }else {
                 System.out.println("DO YOU NOW DE WEY");
+                Node.receiveTracker++;
+                Node.receiveSummation += Payload;
             }
         }
 

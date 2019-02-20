@@ -24,17 +24,13 @@ public interface Node {
         }
         //error trap if no port found
         if (PORT == -1) {
-            // if the program gets here, no port in the range was found
-            //TODO FILE ERROR
+            System.out.println("NO AVAILABLE PORT FOUND TO USE");
         }
         return PORT;
     }
 
     String getKey();
     String getRegKey();
-    //getters
-    String getAddr();
-    int getPort();
 
     //Identification
     boolean isMessenger();

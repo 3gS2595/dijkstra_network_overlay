@@ -15,7 +15,6 @@ import java.net.Socket;
 public class Deregister_Response implements Event {
 
     //TODO DISABLE DEBUG TOGGLE
-    private boolean debug = true;
     private byte[] marshaledBytes;
 
     //RECEIVES RESPONSE
@@ -24,7 +23,6 @@ public class Deregister_Response implements Event {
 
         //Incoming message data
         byte STATUS;
-        String ADDITIONAL_INFO;
 
         ByteArrayInputStream baInputStream =
             new ByteArrayInputStream(marshaledBytes);
@@ -41,26 +39,23 @@ public class Deregister_Response implements Event {
         int statusCodeLength = din.readInt();
         byte[] identifierBytes = new byte[statusCodeLength];
         din.readFully(identifierBytes);
-        ADDITIONAL_INFO = new String(identifierBytes);
 
         //Final clean up)
         baInputStream.close();
         din.close();
 
-        if(debug) {
-        }
+
         if (STATUS == 1) {
             System.out.println("DEREGISTERED AND EXITING PROGRAM");
             System.exit(1);
         }else {
             System.out.println("DEREGISTERATION FAILURE");
             System.out.println("THIS SHOULD NOT HAVE HAPPENED");
-
         }
     }
 
     //SENDS RESPONSE
-    public Deregister_Response(String NODE_ADDRESS, int NODE_PORT, byte STATUS, String INFO)  throws IOException {
+    Deregister_Response(String NODE_ADDRESS, int NODE_PORT, byte STATUS, String INFO)  throws IOException {
 
         //creates Request message byte array
         byte[] marshaledBytes;

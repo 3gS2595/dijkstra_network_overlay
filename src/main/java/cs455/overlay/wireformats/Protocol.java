@@ -7,8 +7,10 @@ public interface Protocol {
     int DEREGISTER_RES = 4;
     int MESSAGING_NODES_LIST = 5;
     int MESSAGING_NODES_WEIGHTS = 6;
-    int MESSAGING_GREETING = 7;
     int TASK_INITIATE = 8;
     int DATA_MESSAGE = 9;
+    int TASK_COMPLETE = 10;
+    int PULL_TRAFFIC_SUMMARY = 11;
+    int TRAFFIC_SUMMARY = 12;
 
 }
