@@ -1,0 +1,130 @@
+/* BODY -------------------------------------------*/
+
+html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, font, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;	padding: 0;	border: 0;	outline: 0;	font-size: 100%;	vertical-align: baseline;	background: transparent;
+	list-style:none;
+}
+
+body{
+    font:12px "Courier New", Courier, monospace;
+    color:#999;
+
+}
+
+#body a{
+    color:#333;
+}
+
+#header h1 a{
+    display:block;
+    color:chartreuse;
+    padding: 40px 0px 0px 0px; 
+    color: #000; 
+    text-decoration: none; 
+}
+
+#body{
+    margin-left:21px;
+}
+
+/* HEADER -------------------------------------------*/
+
+#header ul{
+    margin-left: none;
+    padding-bottom: 30px;
+    clear:both;
+    height:32px;
+    float:left;
+    list-style-type: none;
+}
+
+#listDiv.ul {
+    text-align: left;
+}
+
+#header ul li{
+    float:left;
+    margin-top:9px;
+}
+
+#header ul li a{
+    line-height:12px;
+    margin-right:23px;
+    text-decoration: none;
+}
+#header ul li a:hover{
+    border-bottom:5px solid #999;
+    text-decoration:none;
+}
+
+#header .active{
+    border-bottom:4px solid #999;
+    border-bottom-color: #AfA;
+}
+
+/* CONTENT -------------------------------------------*/
+
+#content {
+        display: block;
+    	clear:both;
+        height: 20%;
+    	float:left;
+}
+
+#paragraph h2 a{
+    display:block;
+    color:#333;
+    color: #000; 
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    text-decoration: none; 
+}
+#c img{
+    	clear:both;
+        height: 705px;
+    	float:left;
+}
+
+#content img{
+    	clear:both;
+        height: 705px;
+    	float:left;
+    padding-bottom: 21px;
+}
+
+#content a{
+    text-decoration: none;
+    width: 200px;
+}
+
+#contact w{
+    color:#999;
+}
+
+#contact {
+    display:inline-block;    
+    padding-right: 50px; 
+}
+
+#contact2 {
+    display:inline-block;
+}
+
+#links a{
+    position: relative;
+    color:#333;
+    padding: 40px 0px 0px 0px; 
+    color: #000; 
+    text-decoration: none; 
+}
+
+#paragraph{
+    display: block;
+    width: 420px;
+}
+
+#paragraph a{
+    width: 420px;
+    text-decoration: none;
+
+}
